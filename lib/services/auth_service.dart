@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/user_model.dart';
 
 class AuthService extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -87,20 +86,25 @@ class AuthService extends ChangeNotifier {
   
   // Helper Methods
   Future<void> _createUserDocument(User user) async {
-    final userDoc = _firestore.collection('users').doc(user.uid);
-    final docSnapshot = await userDoc.get();
-    
-    if (!docSnapshot.exists) {
-      final userData = UserModel(
-        uid: user.uid,
-        email: user.email!,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        createdAt: DateTime.now(),
-        lastLoginAt: DateTime.now(),
-      );
+    try {
+      final userDoc = _firestore.collection('users').doc(user.uid);
+      final docSnapshot = await userDoc.get();
       
-      await userDoc.set(userData.toFirestore());
+      if (!docSnapshot.exists) {
+        // Create a simple user document with basic data
+        await userDoc.set({
+          'email': user.email ?? '',
+          'displayName': user.displayName ?? '',
+          'photoURL': user.photoURL ?? '',
+          'createdAt': DateTime.now(),
+          'lastLoginAt': DateTime.now(),
+          'profileCompleted': false,
+        });
+        print('User document created successfully for: ${user.email}');
+      }
+    } catch (e) {
+      print('Error creating user document: $e');
+      // Don't throw error - let registration continue
     }
   }
   
@@ -137,13 +141,13 @@ class AuthService extends ChangeNotifier {
   }
   
   // Get current user data
-  Future<UserModel?> getCurrentUserData() async {
+  Future<Map<String, dynamic>?> getCurrentUserData() async {
     if (currentUser == null) return null;
     
     try {
       final doc = await _firestore.collection('users').doc(currentUser!.uid).get();
-      if (doc.exists) {
-        return UserModel.fromFirestore(doc);
+      if (doc.exists && doc.data() != null) {
+        return doc.data() as Map<String, dynamic>;
       }
       return null;
     } catch (e) {
@@ -157,9 +161,17 @@ class AuthService extends ChangeNotifier {
     if (currentUser == null) return;
     
     try {
-      await _firestore.collection('users').doc(currentUser!.uid).update(data);
+      // Use set with merge option to create the document if it doesn't exist
+      await _firestore.collection('users').doc(currentUser!.uid).set(
+        {
+          ...data,
+          'updatedAt': DateTime.now(),
+        },
+        SetOptions(merge: true),
+      );
       notifyListeners();
     } catch (e) {
+      print('Error updating user profile: $e');
       throw 'Failed to update profile: $e';
     }
   }
