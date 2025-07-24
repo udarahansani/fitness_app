@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -273,23 +273,129 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _signIn() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final authService = Provider.of<AuthService>(context, listen: false);
+        print('Starting login process...');
         
-        await authService.signInWithEmail(
-          _emailController.text.trim(),
-          _passwordController.text,
-        );
-        
+        // Show loading indicator
         if (mounted) {
-          // Navigate to home screen after successful login
-          Navigator.pushReplacementNamed(context, '/home');
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Signing you in...'),
+              backgroundColor: Colors.blue,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+
+        // Sign in with Firebase directly
+        UserCredential? userCredential;
+        
+        try {
+          userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+          );
+          print('Login successful: ${userCredential.user!.email}');
+        } catch (authError) {
+          print('Login auth error: $authError');
+          
+          // Check if it's the PigeonUserDetails error but user was actually logged in
+          if (authError.toString().contains('PigeonUserDetails')) {
+            print('PigeonUserDetails error detected during login, checking if user is logged in...');
+            
+            // Wait a moment for Firebase to sync
+            await Future.delayed(const Duration(milliseconds: 1000));
+            
+            // Check if user is now logged in
+            final currentUser = FirebaseAuth.instance.currentUser;
+            if (currentUser != null && currentUser.email == _emailController.text.trim()) {
+              print('User was actually logged in successfully despite the error');
+              
+              // Update last login time
+              try {
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(currentUser.uid)
+                    .update({
+                  'lastLoginAt': DateTime.now(),
+                });
+                print('Last login time updated');
+              } catch (e) {
+                print('Error updating last login time: $e');
+                // Continue anyway since login was successful
+              }
+
+              if (mounted) {
+                // Show success message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Login successful!'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+                
+                // Navigate to home screen after successful login
+                Navigator.pushReplacementNamed(context, '/home');
+              }
+              return; // Exit function successfully
+            } else {
+              // User wasn't logged in, show error
+              throw 'Login failed due to a technical error.';
+            }
+          } else {
+            // Handle other Firebase errors
+            if (authError.toString().contains('user-not-found')) {
+              throw 'No user found for that email.';
+            } else if (authError.toString().contains('wrong-password')) {
+              throw 'Wrong password provided.';
+            } else if (authError.toString().contains('invalid-email')) {
+              throw 'The email address is not valid.';
+            } else if (authError.toString().contains('user-disabled')) {
+              throw 'This user account has been disabled.';
+            } else {
+              throw 'Login failed: ${authError.toString()}';
+            }
+          }
+        }
+
+        // If we get here, login was successful without errors
+        if (userCredential?.user != null) {
+          print('Login successful: ${userCredential!.user!.email}');
+          
+          // Update last login time
+          try {
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(userCredential.user!.uid)
+                .update({
+              'lastLoginAt': DateTime.now(),
+            });
+            print('Last login time updated');
+          } catch (e) {
+            print('Error updating last login time: $e');
+            // Continue anyway since login was successful
+          }
+
+          if (mounted) {
+            // Show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Login successful!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            
+            // Navigate to home screen after successful login
+            Navigator.pushReplacementNamed(context, '/home');
+          }
         }
       } catch (e) {
+        print('Login error: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(e.toString()),
               backgroundColor: Colors.red,
+              duration: const Duration(seconds: 4),
             ),
           );
         }

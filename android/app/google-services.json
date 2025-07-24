@@ -1,26 +1,36 @@
 {
   "project_info": {
-    "project_number": "439467357878",
-    "project_id": "fitnessapp-54afb",
-    "storage_bucket": "fitnessapp-54afb.firebasestorage.app"
+    "project_number": "878344363430",
+    "project_id": "metawell-fitness",
+    "storage_bucket": "metawell-fitness.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:439467357878:android:ca1b071377a47d2b385817",
+        "mobilesdk_app_id": "1:878344363430:android:9e621dc629b8b2e6498367",
         "android_client_info": {
           "package_name": "com.example.fitness_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "878344363430-6534f2tbn9ltl3icn4t69qkhpl7c38p9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyCbnOCJaz1T4cN6HOWmatxZXb_AOEan_KU"
+          "current_key": "AIzaSyDBRJ_ErMtlG7JGIBZQieO02WL0qExvmVA"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "878344363430-6534f2tbn9ltl3icn4t69qkhpl7c38p9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

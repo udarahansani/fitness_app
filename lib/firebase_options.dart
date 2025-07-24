@@ -53,10 +53,10 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCbnOCJaz1T4cN6HOWmatxZXb_AOEan_KU',
-    appId: '1:439467357878:android:ca1b071377a47d2b385817',
-    messagingSenderId: '439467357878',
-    projectId: 'fitnessapp-54afb',
-    storageBucket: 'fitnessapp-54afb.firebasestorage.app',
+    apiKey: 'AIzaSyDBRJ_ErMtlG7JGIBZQieO02WL0qExvmVA',
+    appId: '1:878344363430:android:9e621dc629b8b2e6498367',
+    messagingSenderId: '878344363430',
+    projectId: 'metawell-fitness',
+    storageBucket: 'metawell-fitness.firebasestorage.app',
   );
 }

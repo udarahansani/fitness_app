@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../services/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -18,18 +18,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _ageController = TextEditingController();
   final _weightController = TextEditingController();
   final _heightController = TextEditingController();
-  
+
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
   String _selectedGender = 'Male';
   String _selectedFitnessGoal = 'Lose Fat';
   String _selectedActivityLevel = 'Medium';
-  String _selectedDietType = 'Non-Vegetarian';
+  String _selectedDietType = 'Vegan';
 
   final List<String> _genders = ['Male', 'Female', 'Other'];
-  final List<String> _fitnessGoals = ['Lose Fat', 'Gain Muscle', 'Maintain Weight', 'General Fitness'];
+  final List<String> _fitnessGoals = [
+    'Lose Fat',
+    'Gain Muscle',
+    'Maintain Weight',
+    'General Fitness',
+  ];
   final List<String> _activityLevels = ['Low', 'Medium', 'High', 'Very High'];
-  final List<String> _dietTypes = ['Vegetarian', 'Non-Vegetarian', 'Vegan', 'Keto', 'Paleo'];
+  final List<String> _dietTypes = [
+    'Vegan',
+    'Vegetarian',
+    'Non-Vegetarian',
+    'Keto',
+    'Paleo',
+  ];
 
   @override
   void dispose() {
@@ -46,50 +57,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFE3F2FD), Color(0xFFBBDEFB)],
+          ),
         ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Form(
-            key: _formKey,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
                 // Title
                 const Text(
-                  'Create Account',
+                  "Let's Personalize\nYour Fitness Journey",
+                  textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1565C0),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Subtitle
-                const Text(
-                  'Fill in your details to create your fitness profile',
-                  style: TextStyle(
-                    fontSize: 16,
                     color: Colors.black87,
-                    height: 1.4,
+                    height: 1.2,
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
 
+                // Scrollable form
                 Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
+                  child: Form(
+                    key: _formKey,
+                    child: ListView(
                       children: [
-                        // Email field
+                        // Email Field
                         _buildTextField(
                           controller: _emailController,
                           hintText: 'Email',
@@ -106,7 +107,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Password field
+                        // Password Field
                         _buildPasswordField(
                           controller: _passwordController,
                           hintText: 'Password',
@@ -124,7 +125,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Confirm Password field
+                        // Confirm Password Field
                         _buildPasswordField(
                           controller: _confirmPasswordController,
                           hintText: 'Confirm Password',
@@ -142,24 +143,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Personal Details Section
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Personal Details',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1565C0),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Name field
+                        // Name Field
                         _buildTextField(
                           controller: _nameController,
-                          hintText: 'Full Name',
+                          hintText: 'Name',
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your name';
@@ -169,162 +156,137 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Age and Gender Row
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildTextField(
-                                controller: _ageController,
-                                hintText: 'Age',
-                                keyboardType: TextInputType.number,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Enter age';
-                                  }
-                                  final age = int.tryParse(value);
-                                  if (age == null || age < 13 || age > 100) {
-                                    return 'Invalid age';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: _buildDropdown(
-                                value: _selectedGender,
-                                items: _genders,
-                                onChanged: (value) => setState(() => _selectedGender = value!),
-                              ),
-                            ),
-                          ],
+                        // Age Field
+                        _buildTextField(
+                          controller: _ageController,
+                          hintText: 'Age',
+                          keyboardType: TextInputType.number,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your age';
+                            }
+                            final age = int.tryParse(value);
+                            if (age == null || age < 13 || age > 100) {
+                              return 'Please enter a valid age (13-100)';
+                            }
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 16),
 
-                        // Weight and Height Row
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildTextField(
-                                controller: _weightController,
-                                hintText: 'Weight (kg)',
-                                keyboardType: TextInputType.number,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Enter weight';
-                                  }
-                                  final weight = double.tryParse(value);
-                                  if (weight == null || weight < 30 || weight > 300) {
-                                    return 'Invalid weight';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: _buildTextField(
-                                controller: _heightController,
-                                hintText: 'Height (cm)',
-                                keyboardType: TextInputType.number,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Enter height';
-                                  }
-                                  final height = double.tryParse(value);
-                                  if (height == null || height < 100 || height > 250) {
-                                    return 'Invalid height';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ),
-                          ],
+                        // Weight Field
+                        _buildTextField(
+                          controller: _weightController,
+                          hintText: 'Weight(Kg)',
+                          keyboardType: TextInputType.number,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your weight';
+                            }
+                            final weight = double.tryParse(value);
+                            if (weight == null || weight < 30 || weight > 300) {
+                              return 'Please enter a valid weight (30-300 kg)';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Height Field
+                        _buildTextField(
+                          controller: _heightController,
+                          hintText: 'Height(cm)',
+                          keyboardType: TextInputType.number,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your height';
+                            }
+                            final height = double.tryParse(value);
+                            if (height == null || height < 100 || height > 250) {
+                              return 'Please enter a valid height (100-250 cm)';
+                            }
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 24),
 
-                        // Fitness Preferences Section
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Fitness Preferences',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1565C0),
+                        // Gender Selection
+                        _buildDropdownRow(
+                          'Gender :',
+                          _selectedGender,
+                          _genders,
+                          (value) => setState(() => _selectedGender = value!),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Fitness Goal Selection
+                        _buildDropdownRow(
+                          'Fitness Goal :',
+                          _selectedFitnessGoal,
+                          _fitnessGoals,
+                          (value) => setState(() => _selectedFitnessGoal = value!),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Activity Level Selection
+                        _buildDropdownRow(
+                          'Activity Level :',
+                          _selectedActivityLevel,
+                          _activityLevels,
+                          (value) => setState(() => _selectedActivityLevel = value!),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Diet Type Selection
+                        _buildDropdownRow(
+                          'Diet Type :',
+                          _selectedDietType,
+                          _dietTypes,
+                          (value) => setState(() => _selectedDietType = value!),
+                        ),
+                        const SizedBox(height: 40),
+
+                        // Create Account Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: _signUp,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF6366F1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              'Create Account',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
 
-                        // Fitness Goal
-                        _buildDropdown(
-                          value: _selectedFitnessGoal,
-                          items: _fitnessGoals,
-                          onChanged: (value) => setState(() => _selectedFitnessGoal = value!),
-                          label: 'Fitness Goal',
+                        // Already have account
+                        Center(
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/login');
+                            },
+                            child: const Text(
+                              'Already have an account? Login',
+                              style: TextStyle(color: Colors.black87, fontSize: 16),
+                            ),
+                          ),
                         ),
-                        const SizedBox(height: 16),
-
-                        // Activity Level
-                        _buildDropdown(
-                          value: _selectedActivityLevel,
-                          items: _activityLevels,
-                          onChanged: (value) => setState(() => _selectedActivityLevel = value!),
-                          label: 'Activity Level',
-                        ),
-                        const SizedBox(height: 16),
-
-                        // Diet Type
-                        _buildDropdown(
-                          value: _selectedDietType,
-                          items: _dietTypes,
-                          onChanged: (value) => setState(() => _selectedDietType = value!),
-                          label: 'Diet Preference',
-                        ),
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 30),
                       ],
                     ),
                   ),
                 ),
-
-                // Sign up button
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: _signUp,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1565C0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Create Account',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Already have account
-                Center(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/login');
-                    },
-                    child: const Text(
-                      'Already have an account? Login',
-                      style: TextStyle(color: Color(0xFF1565C0), fontSize: 16),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -341,19 +303,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFE3F2FD),
+        color: Colors.white.withOpacity(0.9),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFF1565C0).withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.grey.withOpacity(0.3), width: 1),
       ),
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType ?? TextInputType.text,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(color: Colors.grey, fontSize: 16),
+          hintStyle: TextStyle(color: Colors.grey.shade600, fontSize: 16),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
@@ -374,19 +333,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFE3F2FD),
+        color: Colors.white.withOpacity(0.9),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFF1565C0).withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.grey.withOpacity(0.3), width: 1),
       ),
       child: TextFormField(
         controller: controller,
         obscureText: !isVisible,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(color: Colors.grey, fontSize: 16),
+          hintStyle: TextStyle(color: Colors.grey.shade600, fontSize: 16),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
@@ -405,76 +361,255 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildDropdown({
-    required String value,
-    required List<String> items,
-    required ValueChanged<String?> onChanged,
-    String? label,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFE3F2FD),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: const Color(0xFF1565C0).withOpacity(0.3),
-          width: 1,
-        ),
-      ),
-      child: DropdownButtonFormField<String>(
-        value: value,
-        decoration: InputDecoration(
-          hintText: label,
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
+  Widget _buildDropdownRow(
+    String label,
+    String selectedValue,
+    List<String> options,
+    ValueChanged<String?> onChanged,
+  ) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 120,
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
           ),
         ),
-        items: items.map((String item) {
-          return DropdownMenuItem<String>(
-            value: item,
-            child: Text(item),
-          );
-        }).toList(),
-        onChanged: onChanged,
-      ),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.9),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.withOpacity(0.3), width: 1),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: selectedValue,
+                isExpanded: true,
+                onChanged: onChanged,
+                items: options.map((String option) {
+                  return DropdownMenuItem<String>(
+                    value: option,
+                    child: Text(
+                      option,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Future<void> _signUp() async {
     if (_formKey.currentState!.validate()) {
-      try {
-        final authService = Provider.of<AuthService>(context, listen: false);
-        
-        // Create Firebase account
-        await authService.signUpWithEmail(
-          _emailController.text.trim(),
-          _passwordController.text,
+      // Show loading indicator
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Creating your account...'),
+            backgroundColor: Colors.blue,
+            duration: Duration(seconds: 3),
+          ),
         );
+      }
+
+      try {
+        print('Starting registration process...');
+
+        // Create Firebase account with minimal error handling
+        print('Creating Firebase account...');
+        UserCredential? userCredential;
         
-        // Update user profile with all details
-        await authService.updateUserProfile({
-          'displayName': _nameController.text.trim(),
-          'age': int.parse(_ageController.text),
-          'weight': double.parse(_weightController.text),
-          'height': double.parse(_heightController.text),
-          'gender': _selectedGender,
-          'fitnessGoal': _selectedFitnessGoal.toLowerCase().replaceAll(' ', '_'),
-          'activityLevel': _selectedActivityLevel.toLowerCase(),
-          'dietaryRestrictions': [_selectedDietType.toLowerCase()],
-          'profileCompleted': true,
-        });
-        
-        if (mounted) {
-          // Navigate to personalization screen after successful registration
-          Navigator.pushReplacementNamed(context, '/personalization');
+        try {
+          userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+          );
+          print('Firebase account created successfully');
+        } catch (authError) {
+          print('Auth error: $authError');
+          
+          // Check if it's the PigeonUserDetails error but user was actually created
+          if (authError.toString().contains('PigeonUserDetails')) {
+            print('PigeonUserDetails error detected, but checking if user was created...');
+            
+            // Wait a moment for Firebase to sync
+            await Future.delayed(const Duration(milliseconds: 1000));
+            
+            // Check if user exists by trying to get current user
+            final currentUser = FirebaseAuth.instance.currentUser;
+            if (currentUser != null && currentUser.email == _emailController.text.trim()) {
+              print('User was actually created successfully despite the error');
+              // Skip the userCredential assignment and go directly to Firestore save
+              final userId = currentUser.uid;
+              print('User ID: $userId');
+              
+              // Save user data to Firestore directly
+              print('Saving user data to Firestore...');
+              try {
+                await FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(userId)
+                    .set({
+                  'uid': userId,
+                  'email': _emailController.text.trim(),
+                  'displayName': _nameController.text.trim(),
+                  'age': int.parse(_ageController.text),
+                  'weight': double.parse(_weightController.text),
+                  'height': double.parse(_heightController.text),
+                  'gender': _selectedGender,
+                  'fitnessGoal': _selectedFitnessGoal.toLowerCase().replaceAll(' ', '_'),
+                  'activityLevel': _selectedActivityLevel.toLowerCase(),
+                  'dietaryRestrictions': [_selectedDietType.toLowerCase()],
+                  'profileCompleted': true,
+                  'createdAt': DateTime.now(),
+                  'lastLoginAt': DateTime.now(),
+                });
+                
+                print('User data saved successfully');
+                
+                if (mounted) {
+                  // Show success message
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Account created successfully!'),
+                      backgroundColor: Colors.green,
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                  
+                  // Navigate to home screen
+                  await Future.delayed(const Duration(milliseconds: 500));
+                  Navigator.pushReplacementNamed(context, '/home');
+                }
+                return; // Exit the function successfully
+              } catch (firestoreError) {
+                print('Firestore error: $firestoreError');
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Account created but profile save failed. Please try logging in.'),
+                      backgroundColor: Colors.orange,
+                      duration: Duration(seconds: 4),
+                    ),
+                  );
+                }
+                return;
+              }
+            } else {
+              // User wasn't created, show error
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Registration failed due to a technical error. Please try again.'),
+                    backgroundColor: Colors.red,
+                    duration: Duration(seconds: 4),
+                  ),
+                );
+              }
+              return;
+            }
+          } else {
+            // Handle other Firebase errors
+            if (mounted) {
+              String errorMessage = 'Registration failed';
+              if (authError.toString().contains('email-already-in-use')) {
+                errorMessage = 'The account already exists for that email.';
+              } else if (authError.toString().contains('weak-password')) {
+                errorMessage = 'The password provided is too weak.';
+              } else if (authError.toString().contains('invalid-email')) {
+                errorMessage = 'The email address is not valid.';
+              }
+              
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(errorMessage),
+                  backgroundColor: Colors.red,
+                  duration: const Duration(seconds: 4),
+                ),
+              );
+            }
+            return;
+          }
+        }
+
+        // If we get here, account was created successfully
+        if (userCredential?.user?.uid != null) {
+          final userId = userCredential!.user!.uid;
+          print('User ID: $userId');
+          
+          // Save user data to Firestore
+          print('Saving user data to Firestore...');
+          try {
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(userId)
+                .set({
+              'uid': userId,
+              'email': _emailController.text.trim(),
+              'displayName': _nameController.text.trim(),
+              'age': int.parse(_ageController.text),
+              'weight': double.parse(_weightController.text),
+              'height': double.parse(_heightController.text),
+              'gender': _selectedGender,
+              'fitnessGoal': _selectedFitnessGoal.toLowerCase().replaceAll(' ', '_'),
+              'activityLevel': _selectedActivityLevel.toLowerCase(),
+              'dietaryRestrictions': [_selectedDietType.toLowerCase()],
+              'profileCompleted': true,
+              'createdAt': DateTime.now(),
+              'lastLoginAt': DateTime.now(),
+            });
+            
+            print('User data saved successfully');
+            
+            if (mounted) {
+              // Show success message
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Account created successfully!'),
+                  backgroundColor: Colors.green,
+                  duration: Duration(seconds: 2),
+                ),
+              );
+              
+              // Navigate to home screen
+              await Future.delayed(const Duration(milliseconds: 500));
+              Navigator.pushReplacementNamed(context, '/home');
+            }
+          } catch (firestoreError) {
+            print('Firestore error: $firestoreError');
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Account created but profile save failed. Please try logging in.'),
+                  backgroundColor: Colors.orange,
+                  duration: Duration(seconds: 4),
+                ),
+              );
+            }
+          }
         }
       } catch (e) {
+        print('Unexpected error: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(e.toString()),
+              content: Text('An unexpected error occurred: ${e.toString()}'),
               backgroundColor: Colors.red,
+              duration: const Duration(seconds: 4),
             ),
           );
         }
