@@ -57,6 +57,9 @@ dependencies:
   
   # Date handling
   intl: ^0.18.1
+  
+  # URL Launcher for opening external URLs
+  url_launcher: ^6.2.2
 
 dev_dependencies:
   flutter_test:

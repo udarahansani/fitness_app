@@ -8,144 +8,73 @@ class WelcomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            // Top curved section with gradient
-            Expanded(
-              flex: 3,
-              child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFFE3F2FD), // Very light blue
-                      Color(0xFFBBDEFB), // Light blue
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
+            ),
+            child: Column(
+              children: [
+                // Top section with blue curved design
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.2,
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFBBDEFB), // Darker blue background
+                  ),
+                  child: Stack(
+                    children: [
+                      // Curved design at top
+                      Positioned(
+                        top: -50,
+                        left: -100,
+                        child: Container(
+                          width: 300,
+                          height: 150,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(75),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                child: Stack(
-                  children: [
-                    // Curved design elements
-                    Positioned(
-                      top: -50,
-                      left: -50,
-                      child: Container(
-                        width: 200,
-                        height: 200,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.3),
-                          shape: BoxShape.circle,
-                        ),
+                
+                // Middle section with white background for logos
+                Container(
+                  width: double.infinity,
+                  color: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 30),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      // Flexing arm logos
+                      Image.asset(
+                        'lib/assests/images/logo2.jpg',
+                        width: 300,
+                        height: 140,
+                        fit: BoxFit.contain,
                       ),
-                    ),
-                    Positioned(
-                      top: 50,
-                      right: -100,
-                      child: Container(
-                        width: 250,
-                        height: 250,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          shape: BoxShape.circle,
-                        ),
+                      const SizedBox(height: 15),
+                      // MetaWell logo with person icons
+                      Image.asset(
+                        'lib/assests/images/logo1.jpg',
+                        width: 400,
+                        height: 140,
+                        fit: BoxFit.contain,
                       ),
-                    ),
-                    // Main content
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          // Muscle/Flexing arm icons
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: 60,
-                                height: 60,
-                                decoration: const BoxDecoration(
-                                  color: Colors.black87,
-                                ),
-                                child: CustomPaint(
-                                  painter: FlexingArmPainter(),
-                                ),
-                              ),
-                              const SizedBox(width: 40),
-                              Container(
-                                width: 60,
-                                height: 60,
-                                decoration: const BoxDecoration(
-                                  color: Colors.black87,
-                                ),
-                                child: CustomPaint(
-                                  painter: FlexingArmPainter(isRight: true),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 30),
-                          // App name with custom styling
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.person,
-                                size: 24,
-                                color: Colors.black87,
-                              ),
-                              RichText(
-                                text: const TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: 'META',
-                                      style: TextStyle(
-                                        fontSize: 32,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black87,
-                                        letterSpacing: 1.2,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: 'WELL',
-                                      style: TextStyle(
-                                        fontSize: 32,
-                                        fontWeight: FontWeight.w300,
-                                        color: Colors.black87,
-                                        letterSpacing: 1.2,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Text(
-                                '+',
-                                style: TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ),
 
-            // Bottom section with light blue background
-            Expanded(
-              flex: 2,
-              child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFE3F2FD), // Light blue background
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
+                // Bottom section with light blue background
+                Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFBBDEFB), // Darker blue background
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 40.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -248,75 +177,15 @@ class WelcomeScreen extends StatelessWidget {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
-}
-
-// Custom painter for flexing arm icons
-class FlexingArmPainter extends CustomPainter {
-  final bool isRight;
-  
-  FlexingArmPainter({this.isRight = false});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 3.0
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final path = Path();
-    
-    if (isRight) {
-      // Right flexing arm
-      path.moveTo(size.width * 0.2, size.height * 0.7);
-      path.quadraticBezierTo(
-        size.width * 0.3, size.height * 0.5,
-        size.width * 0.5, size.height * 0.4,
-      );
-      path.quadraticBezierTo(
-        size.width * 0.7, size.height * 0.3,
-        size.width * 0.8, size.height * 0.2,
-      );
-      
-      // Bicep curve
-      path.moveTo(size.width * 0.4, size.height * 0.35);
-      path.quadraticBezierTo(
-        size.width * 0.45, size.height * 0.25,
-        size.width * 0.6, size.height * 0.3,
-      );
-    } else {
-      // Left flexing arm (mirrored)
-      path.moveTo(size.width * 0.8, size.height * 0.7);
-      path.quadraticBezierTo(
-        size.width * 0.7, size.height * 0.5,
-        size.width * 0.5, size.height * 0.4,
-      );
-      path.quadraticBezierTo(
-        size.width * 0.3, size.height * 0.3,
-        size.width * 0.2, size.height * 0.2,
-      );
-      
-      // Bicep curve
-      path.moveTo(size.width * 0.6, size.height * 0.35);
-      path.quadraticBezierTo(
-        size.width * 0.55, size.height * 0.25,
-        size.width * 0.4, size.height * 0.3,
-      );
-    }
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
