@@ -394,27 +394,149 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildChatTab() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.chat, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
-          Text(
-            'AI Fitness Coach',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey,
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(60),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF1565C0).withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.smart_toy,
+                size: 60,
+                color: Colors.white,
+              ),
             ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Coming Soon!',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-        ],
+            const SizedBox(height: 24),
+            const Text(
+              'AI Fitness Coach',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF1565C0),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Get personalized fitness advice, workout plans, and nutrition tips from your AI coach!',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/ai_chat');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1565C0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  elevation: 4,
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.chat_bubble, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text(
+                      'Start Chatting',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE3F2FD),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFF1565C0).withOpacity(0.3),
+                ),
+              ),
+              child: Column(
+                children: [
+                  const Text(
+                    'What I can help you with:',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1565C0),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildFeatureItem(Icons.fitness_center, 'Workouts'),
+                      _buildFeatureItem(Icons.restaurant, 'Nutrition'),
+                      _buildFeatureItem(Icons.track_changes, 'Goals'),
+                      _buildFeatureItem(Icons.psychology, 'Motivation'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildFeatureItem(IconData icon, String label) {
+    return Column(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: const Color(0xFF1565C0),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Icon(icon, color: Colors.white, size: 20),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Color(0xFF1565C0),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }
