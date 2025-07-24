@@ -57,6 +57,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/welcome',
+            (route) => false,
+          ),
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+        ),
+      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
@@ -485,15 +497,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   // Show success message
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Account created successfully!'),
+                      content: Text('Account created successfully! Please login with your credentials.'),
                       backgroundColor: Colors.green,
-                      duration: Duration(seconds: 2),
+                      duration: Duration(seconds: 3),
                     ),
                   );
                   
-                  // Navigate to home screen
+                  // Sign out the user and navigate to login screen
+                  await FirebaseAuth.instance.signOut();
                   await Future.delayed(const Duration(milliseconds: 500));
-                  Navigator.pushReplacementNamed(context, '/home');
+                  Navigator.pushReplacementNamed(context, '/login');
                 }
                 return; // Exit the function successfully
               } catch (firestoreError) {
@@ -579,15 +592,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
               // Show success message
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Account created successfully!'),
+                  content: Text('Account created successfully! Please login with your credentials.'),
                   backgroundColor: Colors.green,
-                  duration: Duration(seconds: 2),
+                  duration: Duration(seconds: 3),
                 ),
               );
               
-              // Navigate to home screen
+              // Sign out the user and navigate to login screen
+              await FirebaseAuth.instance.signOut();
               await Future.delayed(const Duration(milliseconds: 500));
-              Navigator.pushReplacementNamed(context, '/home');
+              Navigator.pushReplacementNamed(context, '/login');
             }
           } catch (firestoreError) {
             print('Firestore error: $firestoreError');

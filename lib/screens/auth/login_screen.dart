@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,11 +36,12 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
@@ -200,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
-                const Spacer(),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.1),
 
                 // Or continue with
                 const Center(
@@ -217,19 +219,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     _buildSocialButton(
                       onPressed: () {
-                        // Google sign in
+                        _launchURL('https://www.google.com');
                       },
                       icon: Icons.g_mobiledata,
                     ),
                     _buildSocialButton(
                       onPressed: () {
-                        // Facebook sign in
+                        _launchURL('https://www.facebook.com');
                       },
                       icon: Icons.facebook,
                     ),
                     _buildSocialButton(
                       onPressed: () {
-                        // Apple sign in
+                        _launchURL('https://www.apple.com');
                       },
                       icon: Icons.apple,
                     ),
@@ -237,6 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
               ],
+              ),
             ),
           ),
         ),
@@ -268,6 +271,66 @@ class _LoginScreenState extends State<LoginScreen> {
         icon: Icon(icon, size: 28, color: Colors.black87),
       ),
     );
+  }
+
+  Future<void> _launchURL(String url) async {
+    try {
+      final Uri uri = Uri.parse(url);
+      
+      // Try different launch modes
+      bool launched = false;
+      
+      // First try with platformDefault mode
+      try {
+        launched = await launchUrl(uri, mode: LaunchMode.platformDefault);
+      } catch (e) {
+        print('Platform default failed: $e');
+      }
+      
+      // If that fails, try externalApplication
+      if (!launched) {
+        try {
+          launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } catch (e) {
+          print('External application failed: $e');
+        }
+      }
+      
+      // If that fails, try inAppWebView
+      if (!launched) {
+        try {
+          launched = await launchUrl(uri, mode: LaunchMode.inAppWebView);
+        } catch (e) {
+          print('In-app web view failed: $e');
+        }
+      }
+      
+      // If nothing worked, show error
+      if (!launched) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Could not open $url. Please check your internet connection.'),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      } else {
+        print('Successfully launched: $url');
+      }
+    } catch (e) {
+      print('Launch URL error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Opening $url...'),
+            backgroundColor: Colors.blue,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _signIn() async {
