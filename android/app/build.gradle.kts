@@ -47,13 +47,12 @@ flutter {
 
 dependencies {
     // Import the Firebase BoM (using compatible version)
-    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
+    implementation(platform("com.google.firebase:firebase-bom:32.2.0"))
     
     // Firebase dependencies (versions managed by BoM)
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-storage")
     
     // Multidex support
     implementation("androidx.multidex:multidex:2.0.1")
