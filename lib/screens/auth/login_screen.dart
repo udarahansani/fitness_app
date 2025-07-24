@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -268,14 +270,30 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _signIn() {
+  Future<void> _signIn() async {
     if (_formKey.currentState!.validate()) {
-      // TODO: Implement sign in logic
-      print('Email: ${_emailController.text}');
-      print('Password: ${_passwordController.text}');
-
-      // Navigate to home screen after successful login
-      Navigator.pushReplacementNamed(context, '/home');
+      try {
+        final authService = Provider.of<AuthService>(context, listen: false);
+        
+        await authService.signInWithEmail(
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
+        
+        if (mounted) {
+          // Navigate to home screen after successful login
+          Navigator.pushReplacementNamed(context, '/home');
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(e.toString()),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
     }
   }
 }
