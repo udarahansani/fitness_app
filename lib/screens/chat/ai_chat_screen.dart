@@ -28,7 +28,8 @@ class _AIChatScreenState extends State<AIChatScreen> {
   void _addWelcomeMessage() {
     _messages.add(
       ChatMessage(
-        text: "Hi! I'm your AI fitness coach! 💪\n\nI can help you with:\n• Workout plans and exercises\n• Nutrition advice\n• Fitness goals\n• Health tips\n• Motivation and support\n\nHow can I assist you today?",
+        text:
+            "Hi! I'm your AI fitness coach! 💪\n\nI can help you with:\n• Workout plans and exercises\n• Nutrition advice\n• Fitness goals\n• Health tips\n• Motivation and support\n\nHow can I assist you today?",
         isUser: false,
         timestamp: DateTime.now(),
       ),
@@ -80,10 +81,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFFF5F5F5),
-                    Color(0xFFE3F2FD),
-                  ],
+                  colors: [Color(0xFFF5F5F5), Color(0xFFE3F2FD)],
                 ),
               ),
               child: ListView.builder(
@@ -105,15 +103,14 @@ class _AIChatScreenState extends State<AIChatScreen> {
                 children: [
                   const CircularProgressIndicator(
                     strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1565C0)),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Color(0xFF1565C0),
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Text(
                     'AI is thinking...',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
                   ),
                 ],
               ),
@@ -185,8 +182,9 @@ class _AIChatScreenState extends State<AIChatScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        mainAxisAlignment:
-            message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: message.isUser
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!message.isUser) ...[
@@ -197,11 +195,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                 color: Color(0xFF1565C0),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.smart_toy,
-                color: Colors.white,
-                size: 18,
-              ),
+              child: const Icon(Icons.smart_toy, color: Colors.white, size: 18),
             ),
             const SizedBox(width: 8),
           ],
@@ -209,9 +203,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: message.isUser
-                    ? const Color(0xFF1565C0)
-                    : Colors.white,
+                color: message.isUser ? const Color(0xFF1565C0) : Colors.white,
                 borderRadius: BorderRadius.circular(18),
                 boxShadow: [
                   BoxShadow(
@@ -237,9 +229,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                   Text(
                     _formatTime(message.timestamp),
                     style: TextStyle(
-                      color: message.isUser
-                          ? Colors.white70
-                          : Colors.grey[600],
+                      color: message.isUser ? Colors.white70 : Colors.grey[600],
                       fontSize: 12,
                     ),
                   ),
@@ -256,11 +246,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                 color: Colors.grey,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.person,
-                color: Colors.white,
-                size: 18,
-              ),
+              child: const Icon(Icons.person, color: Colors.white, size: 18),
             ),
           ],
         ],
@@ -278,11 +264,9 @@ class _AIChatScreenState extends State<AIChatScreen> {
 
     // Add user message
     setState(() {
-      _messages.add(ChatMessage(
-        text: text,
-        isUser: true,
-        timestamp: DateTime.now(),
-      ));
+      _messages.add(
+        ChatMessage(text: text, isUser: true, timestamp: DateTime.now()),
+      );
       _isLoading = true;
     });
 
@@ -291,22 +275,27 @@ class _AIChatScreenState extends State<AIChatScreen> {
 
     try {
       final aiResponse = await _getAIResponse(text);
-      
+
       setState(() {
-        _messages.add(ChatMessage(
-          text: aiResponse,
-          isUser: false,
-          timestamp: DateTime.now(),
-        ));
+        _messages.add(
+          ChatMessage(
+            text: aiResponse,
+            isUser: false,
+            timestamp: DateTime.now(),
+          ),
+        );
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _messages.add(ChatMessage(
-          text: "Sorry, I'm having trouble connecting right now. Please check your internet connection and try again. 🤖",
-          isUser: false,
-          timestamp: DateTime.now(),
-        ));
+        _messages.add(
+          ChatMessage(
+            text:
+                "Sorry, I'm having trouble connecting right now. Please check your internet connection and try again. 🤖",
+            isUser: false,
+            timestamp: DateTime.now(),
+          ),
+        );
         _isLoading = false;
       });
     }
@@ -333,12 +322,10 @@ class _AIChatScreenState extends State<AIChatScreen> {
           'messages': [
             {
               'role': 'system',
-              'content': 'You are a helpful and motivating AI fitness coach. Provide personalized fitness advice, workout plans, nutrition tips, and motivation. Keep responses friendly, encouraging, and practical. Always prioritize safety and suggest consulting professionals for serious health concerns.'
+              'content':
+                  'You are a helpful and motivating AI fitness coach. Provide personalized fitness advice, workout plans, nutrition tips, and motivation. Keep responses friendly, encouraging, and practical. Always prioritize safety and suggest consulting professionals for serious health concerns.',
             },
-            {
-              'role': 'user',
-              'content': userMessage,
-            }
+            {'role': 'user', 'content': userMessage},
           ],
           'max_tokens': 500,
           'temperature': 0.7,
@@ -359,14 +346,20 @@ class _AIChatScreenState extends State<AIChatScreen> {
 
   String _getDemoResponse(String userMessage) {
     final message = userMessage.toLowerCase();
-    
+
     if (message.contains('workout') || message.contains('exercise')) {
       return "Great question about workouts! 💪\n\nFor beginners, I recommend starting with:\n• 3 days per week\n• 30-45 minutes per session\n• Mix of cardio and strength training\n• Always warm up and cool down\n\nWould you like a specific workout plan based on your fitness level?";
-    } else if (message.contains('diet') || message.contains('nutrition') || message.contains('food')) {
+    } else if (message.contains('diet') ||
+        message.contains('nutrition') ||
+        message.contains('food')) {
       return "Nutrition is key to reaching your fitness goals! 🥗\n\nGeneral tips:\n• Eat protein with every meal\n• Include plenty of vegetables\n• Stay hydrated (8+ glasses water/day)\n• Avoid processed foods\n• Plan your meals ahead\n\nWhat are your specific nutrition goals?";
-    } else if (message.contains('weight') || message.contains('lose') || message.contains('gain')) {
+    } else if (message.contains('weight') ||
+        message.contains('lose') ||
+        message.contains('gain')) {
       return "Weight management is about consistency! ⚖️\n\nKey principles:\n• Create a sustainable calorie deficit/surplus\n• Focus on whole foods\n• Strength training preserves muscle\n• Be patient - 1-2 lbs per week is healthy\n• Track your progress\n\nWhat's your current weight goal?";
-    } else if (message.contains('motivation') || message.contains('tired') || message.contains('give up')) {
+    } else if (message.contains('motivation') ||
+        message.contains('tired') ||
+        message.contains('give up')) {
       return "I believe in you! 🌟\n\nRemember:\n• Every workout counts\n• Progress isn't always linear\n• Small steps lead to big changes\n• You're stronger than you think\n• Rest is part of the process\n\nWhat's challenging you right now?";
     } else {
       return "Thanks for your question! 🤖\n\nI'm here to help with your fitness journey. I can assist with:\n• Workout routines\n• Nutrition advice\n• Goal setting\n• Motivation\n• Health tips\n\nNote: For a more personalized experience, add your OpenAI API key in the app settings.\n\nWhat specific fitness topic would you like to explore?";
