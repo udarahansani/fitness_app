@@ -245,11 +245,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
                 title: Row(
                   children: [
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.green,
-                      size: 28,
-                    ),
+                    Icon(Icons.check_circle, color: Colors.green, size: 28),
                     const SizedBox(width: 8),
                     const Text(
                       'Email Sent!',
@@ -266,10 +262,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   children: [
                     Text(
                       'We have sent a password reset link to:',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[700],
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -295,7 +288,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop(); // Close dialog
-                      Navigator.pushReplacementNamed(context, '/login'); // Go to login
+                      Navigator.pushReplacementNamed(
+                        context,
+                        '/login',
+                      ); // Go to login
                     },
                     child: const Text(
                       'OK',
@@ -313,7 +309,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       } catch (e) {
         if (mounted) {
           String errorMessage = 'An error occurred. Please try again.';
-          
+
           if (e.toString().contains('user-not-found')) {
             errorMessage = 'No account found with this email address.';
           } else if (e.toString().contains('invalid-email')) {
