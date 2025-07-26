@@ -42,203 +42,206 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Form(
               key: _formKey,
               child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                // Title
-                const Text(
-                  'Login here',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1565C0),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // Subtitle
-                const Text(
-                  'Welcome back you\'ve\nbeen missed!',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.black87,
-                    height: 1.3,
-                  ),
-                ),
-                const SizedBox(height: 40),
-
-                // Email field
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE3F2FD),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: const Color(0xFF1565C0),
-                      width: 1,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20),
+                  // Title
+                  const Text(
+                    'Login here',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1565C0),
                     ),
                   ),
-                  child: TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      hintText: 'Email',
-                      hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
+                  const SizedBox(height: 16),
+                  // Subtitle
+                  const Text(
+                    'Welcome back you\'ve\nbeen missed!',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.black87,
+                      height: 1.3,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Email field
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE3F2FD),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: const Color(0xFF1565C0),
+                        width: 1,
                       ),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!RegExp(
-                        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                      ).hasMatch(value)) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
+                    child: TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        hintText: 'Email',
+                        hintStyle: TextStyle(color: Colors.grey, fontSize: 16),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        if (!RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        ).hasMatch(value)) {
+                          return 'Please enter a valid email';
+                        }
+                        return null;
+                      },
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-                // Password field
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE3F2FD),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: TextFormField(
-                    controller: _passwordController,
-                    obscureText: !_isPasswordVisible,
-                    decoration: InputDecoration(
-                      hintText: 'Password',
-                      hintStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 16,
-                      ),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
-                      ),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _isPasswordVisible = !_isPasswordVisible;
-                          });
-                        },
-                        icon: Icon(
-                          _isPasswordVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off,
+                  // Password field
+                  Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE3F2FD),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: TextFormField(
+                      controller: _passwordController,
+                      obscureText: !_isPasswordVisible,
+                      decoration: InputDecoration(
+                        hintText: 'Password',
+                        hintStyle: const TextStyle(
                           color: Colors.grey,
+                          fontSize: 16,
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
+                          icon: Icon(
+                            _isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        if (value.length < 6) {
+                          return 'Password must be at least 6 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Forgot password
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/forgot_password');
+                      },
+                      child: const Text(
+                        'Forgot your password?',
+                        style: TextStyle(
+                          color: Color(0xFF1565C0),
+                          fontSize: 16,
                         ),
                       ),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
                   ),
-                ),
-                const SizedBox(height: 20),
+                  const SizedBox(height: 30),
 
-                // Forgot password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/forgot_password');
-                    },
-                    child: const Text(
-                      'Forgot your password?',
+                  // Sign in button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: _signIn,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1565C0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Sign in',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Create account
+                  Center(
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/register');
+                      },
+                      child: const Text(
+                        'Create new account',
+                        style: TextStyle(color: Colors.black87, fontSize: 16),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.1),
+
+                  // Or continue with
+                  const Center(
+                    child: Text(
+                      'Or continue with',
                       style: TextStyle(color: Color(0xFF1565C0), fontSize: 16),
                     ),
                   ),
-                ),
-                const SizedBox(height: 30),
+                  const SizedBox(height: 20),
 
-                // Sign in button
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: _signIn,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1565C0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  // Social login buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildSocialButton(
+                        onPressed: () {
+                          _launchURL('https://www.google.com');
+                        },
+                        icon: Icons.g_mobiledata,
                       ),
-                    ),
-                    child: const Text(
-                      'Sign in',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                      _buildSocialButton(
+                        onPressed: () {
+                          _launchURL('https://www.facebook.com');
+                        },
+                        icon: Icons.facebook,
                       ),
-                    ),
+                      _buildSocialButton(
+                        onPressed: () {
+                          _launchURL('https://www.apple.com');
+                        },
+                        icon: Icons.apple,
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 30),
-
-                // Create account
-                Center(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/register');
-                    },
-                    child: const Text(
-                      'Create new account',
-                      style: TextStyle(color: Colors.black87, fontSize: 16),
-                    ),
-                  ),
-                ),
-
-                SizedBox(height: MediaQuery.of(context).size.height * 0.1),
-
-                // Or continue with
-                const Center(
-                  child: Text(
-                    'Or continue with',
-                    style: TextStyle(color: Color(0xFF1565C0), fontSize: 16),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Social login buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildSocialButton(
-                      onPressed: () {
-                        _launchURL('https://www.google.com');
-                      },
-                      icon: Icons.g_mobiledata,
-                    ),
-                    _buildSocialButton(
-                      onPressed: () {
-                        _launchURL('https://www.facebook.com');
-                      },
-                      icon: Icons.facebook,
-                    ),
-                    _buildSocialButton(
-                      onPressed: () {
-                        _launchURL('https://www.apple.com');
-                      },
-                      icon: Icons.apple,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 40),
-              ],
+                  const SizedBox(height: 40),
+                ],
               ),
             ),
           ),
@@ -276,17 +279,17 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _launchURL(String url) async {
     try {
       final Uri uri = Uri.parse(url);
-      
+
       // Try different launch modes
       bool launched = false;
-      
+
       // First try with platformDefault mode
       try {
         launched = await launchUrl(uri, mode: LaunchMode.platformDefault);
       } catch (e) {
         print('Platform default failed: $e');
       }
-      
+
       // If that fails, try externalApplication
       if (!launched) {
         try {
@@ -295,7 +298,7 @@ class _LoginScreenState extends State<LoginScreen> {
           print('External application failed: $e');
         }
       }
-      
+
       // If that fails, try inAppWebView
       if (!launched) {
         try {
@@ -304,13 +307,15 @@ class _LoginScreenState extends State<LoginScreen> {
           print('In-app web view failed: $e');
         }
       }
-      
+
       // If nothing worked, show error
       if (!launched) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Could not open $url. Please check your internet connection.'),
+              content: Text(
+                'Could not open $url. Please check your internet connection.',
+              ),
               backgroundColor: Colors.orange,
               duration: const Duration(seconds: 3),
             ),
@@ -337,7 +342,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       try {
         print('Starting login process...');
-        
+
         // Show loading indicator
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -351,36 +356,40 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // Sign in with Firebase directly
         UserCredential? userCredential;
-        
+
         try {
-          userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-          );
+          userCredential = await FirebaseAuth.instance
+              .signInWithEmailAndPassword(
+                email: _emailController.text.trim(),
+                password: _passwordController.text,
+              );
           print('Login successful: ${userCredential.user!.email}');
         } catch (authError) {
           print('Login auth error: $authError');
-          
+
           // Check if it's the PigeonUserDetails error but user was actually logged in
           if (authError.toString().contains('PigeonUserDetails')) {
-            print('PigeonUserDetails error detected during login, checking if user is logged in...');
-            
+            print(
+              'PigeonUserDetails error detected during login, checking if user is logged in...',
+            );
+
             // Wait a moment for Firebase to sync
             await Future.delayed(const Duration(milliseconds: 1000));
-            
+
             // Check if user is now logged in
             final currentUser = FirebaseAuth.instance.currentUser;
-            if (currentUser != null && currentUser.email == _emailController.text.trim()) {
-              print('User was actually logged in successfully despite the error');
-              
+            if (currentUser != null &&
+                currentUser.email == _emailController.text.trim()) {
+              print(
+                'User was actually logged in successfully despite the error',
+              );
+
               // Update last login time
               try {
                 await FirebaseFirestore.instance
                     .collection('users')
                     .doc(currentUser.uid)
-                    .update({
-                  'lastLoginAt': DateTime.now(),
-                });
+                    .update({'lastLoginAt': DateTime.now()});
                 print('Last login time updated');
               } catch (e) {
                 print('Error updating last login time: $e');
@@ -395,7 +404,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     backgroundColor: Colors.green,
                   ),
                 );
-                
+
                 // Navigate to home screen after successful login
                 Navigator.pushReplacementNamed(context, '/home');
               }
@@ -421,17 +430,15 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         // If we get here, login was successful without errors
-        if (userCredential?.user != null) {
-          print('Login successful: ${userCredential!.user!.email}');
-          
+        if (userCredential.user != null) {
+          print('Login successful: ${userCredential.user!.email}');
+
           // Update last login time
           try {
             await FirebaseFirestore.instance
                 .collection('users')
                 .doc(userCredential.user!.uid)
-                .update({
-              'lastLoginAt': DateTime.now(),
-            });
+                .update({'lastLoginAt': DateTime.now()});
             print('Last login time updated');
           } catch (e) {
             print('Error updating last login time: $e');
@@ -446,7 +453,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 backgroundColor: Colors.green,
               ),
             );
-            
+
             // Navigate to home screen after successful login
             Navigator.pushReplacementNamed(context, '/home');
           }

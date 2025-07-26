@@ -111,7 +111,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your email';
                             }
-                            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                            if (!RegExp(
+                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                            ).hasMatch(value)) {
                               return 'Please enter a valid email';
                             }
                             return null;
@@ -124,7 +126,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           controller: _passwordController,
                           hintText: 'Password',
                           isVisible: _isPasswordVisible,
-                          onToggle: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                          onToggle: () => setState(
+                            () => _isPasswordVisible = !_isPasswordVisible,
+                          ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your password';
@@ -142,7 +146,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           controller: _confirmPasswordController,
                           hintText: 'Confirm Password',
                           isVisible: _isConfirmPasswordVisible,
-                          onToggle: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
+                          onToggle: () => setState(
+                            () => _isConfirmPasswordVisible =
+                                !_isConfirmPasswordVisible,
+                          ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please confirm your password';
@@ -214,7 +221,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               return 'Please enter your height';
                             }
                             final height = double.tryParse(value);
-                            if (height == null || height < 100 || height > 250) {
+                            if (height == null ||
+                                height < 100 ||
+                                height > 250) {
                               return 'Please enter a valid height (100-250 cm)';
                             }
                             return null;
@@ -236,7 +245,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           'Fitness Goal :',
                           _selectedFitnessGoal,
                           _fitnessGoals,
-                          (value) => setState(() => _selectedFitnessGoal = value!),
+                          (value) =>
+                              setState(() => _selectedFitnessGoal = value!),
                         ),
                         const SizedBox(height: 16),
 
@@ -245,7 +255,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           'Activity Level :',
                           _selectedActivityLevel,
                           _activityLevels,
-                          (value) => setState(() => _selectedActivityLevel = value!),
+                          (value) =>
+                              setState(() => _selectedActivityLevel = value!),
                         ),
                         const SizedBox(height: 16),
 
@@ -290,7 +301,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             },
                             child: const Text(
                               'Already have an account? Login',
-                              style: TextStyle(color: Colors.black87, fontSize: 16),
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
                         ),
@@ -444,31 +458,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
         // Create Firebase account with minimal error handling
         print('Creating Firebase account...');
         UserCredential? userCredential;
-        
+
         try {
-          userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-          );
+          userCredential = await FirebaseAuth.instance
+              .createUserWithEmailAndPassword(
+                email: _emailController.text.trim(),
+                password: _passwordController.text,
+              );
           print('Firebase account created successfully');
         } catch (authError) {
           print('Auth error: $authError');
-          
+
           // Check if it's the PigeonUserDetails error but user was actually created
           if (authError.toString().contains('PigeonUserDetails')) {
-            print('PigeonUserDetails error detected, but checking if user was created...');
-            
+            print(
+              'PigeonUserDetails error detected, but checking if user was created...',
+            );
+
             // Wait a moment for Firebase to sync
             await Future.delayed(const Duration(milliseconds: 1000));
-            
+
             // Check if user exists by trying to get current user
             final currentUser = FirebaseAuth.instance.currentUser;
-            if (currentUser != null && currentUser.email == _emailController.text.trim()) {
+            if (currentUser != null &&
+                currentUser.email == _emailController.text.trim()) {
               print('User was actually created successfully despite the error');
               // Skip the userCredential assignment and go directly to Firestore save
               final userId = currentUser.uid;
               print('User ID: $userId');
-              
+
               // Save user data to Firestore directly
               print('Saving user data to Firestore...');
               try {
@@ -476,33 +494,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     .collection('users')
                     .doc(userId)
                     .set({
-                  'uid': userId,
-                  'email': _emailController.text.trim(),
-                  'displayName': _nameController.text.trim(),
-                  'age': int.parse(_ageController.text),
-                  'weight': double.parse(_weightController.text),
-                  'height': double.parse(_heightController.text),
-                  'gender': _selectedGender,
-                  'fitnessGoal': _selectedFitnessGoal.toLowerCase().replaceAll(' ', '_'),
-                  'activityLevel': _selectedActivityLevel.toLowerCase(),
-                  'dietaryRestrictions': [_selectedDietType.toLowerCase()],
-                  'profileCompleted': true,
-                  'createdAt': DateTime.now(),
-                  'lastLoginAt': DateTime.now(),
-                });
-                
+                      'uid': userId,
+                      'email': _emailController.text.trim(),
+                      'displayName': _nameController.text.trim(),
+                      'age': int.parse(_ageController.text),
+                      'weight': double.parse(_weightController.text),
+                      'height': double.parse(_heightController.text),
+                      'gender': _selectedGender,
+                      'fitnessGoal': _selectedFitnessGoal
+                          .toLowerCase()
+                          .replaceAll(' ', '_'),
+                      'activityLevel': _selectedActivityLevel.toLowerCase(),
+                      'dietaryRestrictions': [_selectedDietType.toLowerCase()],
+                      'profileCompleted': true,
+                      'createdAt': DateTime.now(),
+                      'lastLoginAt': DateTime.now(),
+                    });
+
                 print('User data saved successfully');
-                
+
                 if (mounted) {
                   // Show success message
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Account created successfully! Please login with your credentials.'),
+                      content: Text(
+                        'Account created successfully! Please login with your credentials.',
+                      ),
                       backgroundColor: Colors.green,
                       duration: Duration(seconds: 3),
                     ),
                   );
-                  
+
                   // Sign out the user and navigate to login screen
                   await FirebaseAuth.instance.signOut();
                   await Future.delayed(const Duration(milliseconds: 500));
@@ -514,7 +536,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Account created but profile save failed. Please try logging in.'),
+                      content: Text(
+                        'Account created but profile save failed. Please try logging in.',
+                      ),
                       backgroundColor: Colors.orange,
                       duration: Duration(seconds: 4),
                     ),
@@ -527,7 +551,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Registration failed due to a technical error. Please try again.'),
+                    content: Text(
+                      'Registration failed due to a technical error. Please try again.',
+                    ),
                     backgroundColor: Colors.red,
                     duration: Duration(seconds: 4),
                   ),
@@ -546,7 +572,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               } else if (authError.toString().contains('invalid-email')) {
                 errorMessage = 'The email address is not valid.';
               }
-              
+
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(errorMessage),
@@ -560,10 +586,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
 
         // If we get here, account was created successfully
-        if (userCredential?.user?.uid != null) {
-          final userId = userCredential!.user!.uid;
+        if (userCredential.user?.uid != null) {
+          final userId = userCredential.user!.uid;
           print('User ID: $userId');
-          
+
           // Save user data to Firestore
           print('Saving user data to Firestore...');
           try {
@@ -571,33 +597,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 .collection('users')
                 .doc(userId)
                 .set({
-              'uid': userId,
-              'email': _emailController.text.trim(),
-              'displayName': _nameController.text.trim(),
-              'age': int.parse(_ageController.text),
-              'weight': double.parse(_weightController.text),
-              'height': double.parse(_heightController.text),
-              'gender': _selectedGender,
-              'fitnessGoal': _selectedFitnessGoal.toLowerCase().replaceAll(' ', '_'),
-              'activityLevel': _selectedActivityLevel.toLowerCase(),
-              'dietaryRestrictions': [_selectedDietType.toLowerCase()],
-              'profileCompleted': true,
-              'createdAt': DateTime.now(),
-              'lastLoginAt': DateTime.now(),
-            });
-            
+                  'uid': userId,
+                  'email': _emailController.text.trim(),
+                  'displayName': _nameController.text.trim(),
+                  'age': int.parse(_ageController.text),
+                  'weight': double.parse(_weightController.text),
+                  'height': double.parse(_heightController.text),
+                  'gender': _selectedGender,
+                  'fitnessGoal': _selectedFitnessGoal.toLowerCase().replaceAll(
+                    ' ',
+                    '_',
+                  ),
+                  'activityLevel': _selectedActivityLevel.toLowerCase(),
+                  'dietaryRestrictions': [_selectedDietType.toLowerCase()],
+                  'profileCompleted': true,
+                  'createdAt': DateTime.now(),
+                  'lastLoginAt': DateTime.now(),
+                });
+
             print('User data saved successfully');
-            
+
             if (mounted) {
               // Show success message
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Account created successfully! Please login with your credentials.'),
+                  content: Text(
+                    'Account created successfully! Please login with your credentials.',
+                  ),
                   backgroundColor: Colors.green,
                   duration: Duration(seconds: 3),
                 ),
               );
-              
+
               // Sign out the user and navigate to login screen
               await FirebaseAuth.instance.signOut();
               await Future.delayed(const Duration(milliseconds: 500));
@@ -608,7 +639,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Account created but profile save failed. Please try logging in.'),
+                  content: Text(
+                    'Account created but profile save failed. Please try logging in.',
+                  ),
                   backgroundColor: Colors.orange,
                   duration: Duration(seconds: 4),
                 ),
