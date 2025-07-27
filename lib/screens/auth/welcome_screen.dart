@@ -11,7 +11,9 @@ class WelcomeScreen extends StatelessWidget {
         child: SingleChildScrollView(
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
+              minHeight:
+                  MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top,
             ),
             child: Column(
               children: [
@@ -32,7 +34,7 @@ class WelcomeScreen extends StatelessWidget {
                           width: 300,
                           height: 150,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.3),
+                            color: Colors.white.withAlpha(77),
                             borderRadius: BorderRadius.circular(75),
                           ),
                         ),
@@ -40,7 +42,7 @@ class WelcomeScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 // Middle section with white background for logos
                 Container(
                   width: double.infinity,
@@ -74,7 +76,10 @@ class WelcomeScreen extends StatelessWidget {
                   decoration: const BoxDecoration(
                     color: Color(0xFFBBDEFB), // Darker blue background
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 40.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40.0,
+                    vertical: 40.0,
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -109,7 +114,7 @@ class WelcomeScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(25),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
+                                    color: Colors.black.withAlpha(26),
                                     spreadRadius: 1,
                                     blurRadius: 4,
                                     offset: const Offset(0, 2),
@@ -121,7 +126,9 @@ class WelcomeScreen extends StatelessWidget {
                                   Navigator.pushNamed(context, '/login');
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF1976D2), // Blue button
+                                  backgroundColor: const Color(
+                                    0xFF1976D2,
+                                  ), // Blue button
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(25),
@@ -146,7 +153,7 @@ class WelcomeScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(25),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
+                                    color: Colors.black.withAlpha(26),
                                     spreadRadius: 1,
                                     blurRadius: 4,
                                     offset: const Offset(0, 2),

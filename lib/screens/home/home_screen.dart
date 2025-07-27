@@ -30,10 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.of(context).pop(); // Close dialog
                 _logout(); // Perform logout
               },
-              child: const Text(
-                'Logout',
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text('Logout', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -54,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Sign out from Firebase
       await FirebaseAuth.instance.signOut();
-      
+
       if (mounted) {
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
@@ -64,13 +61,9 @@ class _HomeScreenState extends State<HomeScreen> {
             duration: Duration(seconds: 2),
           ),
         );
-        
+
         // Navigate to login screen and clear navigation stack
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/login',
-          (route) => false,
-        );
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
       }
     } catch (e) {
       if (mounted) {
@@ -110,10 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Icon(Icons.logout, color: Colors.red),
                     SizedBox(width: 8),
-                    Text(
-                      'Logout',
-                      style: TextStyle(color: Colors.red),
-                    ),
+                    Text('Logout', style: TextStyle(color: Colors.red)),
                   ],
                 ),
               ),
@@ -256,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withAlpha(26),
                   spreadRadius: 1,
                   blurRadius: 4,
                   offset: const Offset(0, 2),
@@ -321,7 +311,7 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withAlpha(26),
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -412,18 +402,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(60),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF1565C0).withOpacity(0.3),
+                    color: const Color(0xFF1565C0).withAlpha(77),
                     spreadRadius: 2,
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.smart_toy,
-                size: 60,
-                color: Colors.white,
-              ),
+              child: const Icon(Icons.smart_toy, size: 60, color: Colors.white),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -483,7 +469,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: const Color(0xFFE3F2FD),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color(0xFF1565C0).withOpacity(0.3),
+                  color: const Color(0xFF1565C0).withAlpha(77),
                 ),
               ),
               child: Column(

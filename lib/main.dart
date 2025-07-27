@@ -8,10 +8,11 @@ import 'screens/auth/personalization_screen.dart';
 import 'screens/auth/forgot_password_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/chat/ai_chat_screen.dart';
+import 'dart:developer';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -19,13 +20,13 @@ void main() async {
   } catch (e) {
     if (e.toString().contains('duplicate-app')) {
       // Firebase is already initialized, continue
-      print('Firebase already initialized');
+      log('Firebase already initialized');
     } else {
       // Re-throw other errors
       rethrow;
     }
   }
-  
+
   runApp(const MyApp());
 }
 
