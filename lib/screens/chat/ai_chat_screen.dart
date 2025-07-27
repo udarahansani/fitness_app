@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:developer';
 
 class AIChatScreen extends StatefulWidget {
   const AIChatScreen({super.key});
@@ -123,7 +124,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withAlpha(26),
                   spreadRadius: 1,
                   blurRadius: 4,
                   offset: const Offset(0, -2),
@@ -138,7 +139,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                       color: const Color(0xFFE3F2FD),
                       borderRadius: BorderRadius.circular(25),
                       border: Border.all(
-                        color: const Color(0xFF1565C0).withOpacity(0.3),
+                        color: const Color(0xFF1565C0).withAlpha(77),
                         width: 1,
                       ),
                     ),
@@ -207,7 +208,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
                 borderRadius: BorderRadius.circular(18),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withAlpha(26),
                     spreadRadius: 1,
                     blurRadius: 2,
                     offset: const Offset(0, 1),
@@ -339,7 +340,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
         throw Exception('API Error: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error calling OpenAI API: $e');
+      log('Error calling OpenAI API: $e');
       return _getDemoResponse(userMessage);
     }
   }

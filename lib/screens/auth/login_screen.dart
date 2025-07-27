@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:developer';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -262,7 +263,7 @@ class _LoginScreenState extends State<LoginScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withAlpha(51),
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -287,7 +288,7 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         launched = await launchUrl(uri, mode: LaunchMode.platformDefault);
       } catch (e) {
-        print('Platform default failed: $e');
+        log('Platform default failed: $e');
       }
 
       // If that fails, try externalApplication
@@ -295,7 +296,7 @@ class _LoginScreenState extends State<LoginScreen> {
         try {
           launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
         } catch (e) {
-          print('External application failed: $e');
+          log('External application failed: $e');
         }
       }
 
@@ -304,7 +305,7 @@ class _LoginScreenState extends State<LoginScreen> {
         try {
           launched = await launchUrl(uri, mode: LaunchMode.inAppWebView);
         } catch (e) {
-          print('In-app web view failed: $e');
+          log('In-app web view failed: $e');
         }
       }
 
@@ -322,10 +323,10 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
       } else {
-        print('Successfully launched: $url');
+        log('Successfully launched: $url');
       }
     } catch (e) {
-      print('Launch URL error: $e');
+      log('Launch URL error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -341,7 +342,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _signIn() async {
     if (_formKey.currentState!.validate()) {
       try {
-        print('Starting login process...');
+        log('Starting login process...');
 
         // Show loading indicator
         if (mounted) {
@@ -363,13 +364,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 email: _emailController.text.trim(),
                 password: _passwordController.text,
               );
-          print('Login successful: ${userCredential.user!.email}');
+          log('Login successful: ${userCredential.user!.email}');
         } catch (authError) {
-          print('Login auth error: $authError');
+          log('Login auth error: $authError');
 
           // Check if it's the PigeonUserDetails error but user was actually logged in
           if (authError.toString().contains('PigeonUserDetails')) {
-            print(
+            log(
               'PigeonUserDetails error detected during login, checking if user is logged in...',
             );
 
@@ -380,9 +381,7 @@ class _LoginScreenState extends State<LoginScreen> {
             final currentUser = FirebaseAuth.instance.currentUser;
             if (currentUser != null &&
                 currentUser.email == _emailController.text.trim()) {
-              print(
-                'User was actually logged in successfully despite the error',
-              );
+              log('User was actually logged in successfully despite the error');
 
               // Update last login time
               try {
@@ -390,9 +389,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     .collection('users')
                     .doc(currentUser.uid)
                     .update({'lastLoginAt': DateTime.now()});
-                print('Last login time updated');
+                log('Last login time updated');
               } catch (e) {
-                print('Error updating last login time: $e');
+                log('Error updating last login time: $e');
                 // Continue anyway since login was successful
               }
 
@@ -431,7 +430,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // If we get here, login was successful without errors
         if (userCredential.user != null) {
-          print('Login successful: ${userCredential.user!.email}');
+          log('Login successful: ${userCredential.user!.email}');
 
           // Update last login time
           try {
@@ -439,9 +438,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 .collection('users')
                 .doc(userCredential.user!.uid)
                 .update({'lastLoginAt': DateTime.now()});
-            print('Last login time updated');
+            log('Last login time updated');
           } catch (e) {
-            print('Error updating last login time: $e');
+            log('Error updating last login time: $e');
             // Continue anyway since login was successful
           }
 
@@ -459,7 +458,7 @@ class _LoginScreenState extends State<LoginScreen> {
           }
         }
       } catch (e) {
-        print('Login error: $e');
+        log('Login error: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

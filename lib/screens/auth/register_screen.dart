@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:developer';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -329,9 +330,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
+        color: Colors.white.withAlpha(230),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.withOpacity(0.3), width: 1),
+        border: Border.all(color: Colors.grey.withAlpha(77), width: 1),
       ),
       child: TextFormField(
         controller: controller,
@@ -359,9 +360,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
+        color: Colors.white.withAlpha(230),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.withOpacity(0.3), width: 1),
+        border: Border.all(color: Colors.grey.withAlpha(77), width: 1),
       ),
       child: TextFormField(
         controller: controller,
@@ -410,9 +411,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withAlpha(230),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.withOpacity(0.3), width: 1),
+              border: Border.all(color: Colors.grey.withAlpha(77), width: 1),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
@@ -453,10 +454,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
 
       try {
-        print('Starting registration process...');
+        log('Starting registration process...');
 
         // Create Firebase account with minimal error handling
-        print('Creating Firebase account...');
+        log('Creating Firebase account...');
         UserCredential? userCredential;
 
         try {
@@ -465,13 +466,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 email: _emailController.text.trim(),
                 password: _passwordController.text,
               );
-          print('Firebase account created successfully');
+          log('Firebase account created successfully');
         } catch (authError) {
-          print('Auth error: $authError');
+          log('Auth error: $authError');
 
           // Check if it's the PigeonUserDetails error but user was actually created
           if (authError.toString().contains('PigeonUserDetails')) {
-            print(
+            log(
               'PigeonUserDetails error detected, but checking if user was created...',
             );
 
@@ -482,13 +483,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
             final currentUser = FirebaseAuth.instance.currentUser;
             if (currentUser != null &&
                 currentUser.email == _emailController.text.trim()) {
-              print('User was actually created successfully despite the error');
+              log('User was actually created successfully despite the error');
               // Skip the userCredential assignment and go directly to Firestore save
               final userId = currentUser.uid;
-              print('User ID: $userId');
+              log('User ID: $userId');
 
               // Save user data to Firestore directly
-              print('Saving user data to Firestore...');
+              log('Saving user data to Firestore...');
               try {
                 await FirebaseFirestore.instance
                     .collection('users')
@@ -511,7 +512,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       'lastLoginAt': DateTime.now(),
                     });
 
-                print('User data saved successfully');
+                log('User data saved successfully');
 
                 if (mounted) {
                   // Show success message
@@ -528,11 +529,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   // Sign out the user and navigate to login screen
                   await FirebaseAuth.instance.signOut();
                   await Future.delayed(const Duration(milliseconds: 500));
+                  if (!mounted) return;
                   Navigator.pushReplacementNamed(context, '/login');
                 }
                 return; // Exit the function successfully
               } catch (firestoreError) {
-                print('Firestore error: $firestoreError');
+                log('Firestore error: $firestoreError');
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -588,10 +590,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         // If we get here, account was created successfully
         if (userCredential.user?.uid != null) {
           final userId = userCredential.user!.uid;
-          print('User ID: $userId');
+          log('User ID: $userId');
 
           // Save user data to Firestore
-          print('Saving user data to Firestore...');
+          log('Saving user data to Firestore...');
           try {
             await FirebaseFirestore.instance
                 .collection('users')
@@ -615,7 +617,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   'lastLoginAt': DateTime.now(),
                 });
 
-            print('User data saved successfully');
+            log('User data saved successfully');
 
             if (mounted) {
               // Show success message
@@ -632,10 +634,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
               // Sign out the user and navigate to login screen
               await FirebaseAuth.instance.signOut();
               await Future.delayed(const Duration(milliseconds: 500));
+              if (!mounted) return; // Ensure widget is still mounted
               Navigator.pushReplacementNamed(context, '/login');
             }
           } catch (firestoreError) {
-            print('Firestore error: $firestoreError');
+            log('Firestore error: $firestoreError');
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -650,7 +653,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           }
         }
       } catch (e) {
-        print('Unexpected error: $e');
+        log('Unexpected error: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

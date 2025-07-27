@@ -15,15 +15,26 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
   final _ageController = TextEditingController();
   final _weightController = TextEditingController();
   final _heightController = TextEditingController();
-  
+
   String _selectedFitnessGoal = 'Lose Fat';
   String _selectedActivityLevel = 'Medium';
   String _selectedDietType = 'Vegan';
   String _selectedGender = 'Male';
 
-  final List<String> _fitnessGoals = ['Lose Fat', 'Gain Muscle', 'Maintain Weight', 'General Fitness'];
+  final List<String> _fitnessGoals = [
+    'Lose Fat',
+    'Gain Muscle',
+    'Maintain Weight',
+    'General Fitness',
+  ];
   final List<String> _activityLevels = ['Low', 'Medium', 'High', 'Very High'];
-  final List<String> _dietTypes = ['Vegan', 'Vegetarian', 'Non-Vegetarian', 'Keto', 'Paleo'];
+  final List<String> _dietTypes = [
+    'Vegan',
+    'Vegetarian',
+    'Non-Vegetarian',
+    'Keto',
+    'Paleo',
+  ];
   final List<String> _genders = ['Male', 'Female', 'Other'];
 
   @override
@@ -43,10 +54,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFE3F2FD),
-              Color(0xFFBBDEFB),
-            ],
+            colors: [Color(0xFFE3F2FD), Color(0xFFBBDEFB)],
           ),
         ),
         child: SafeArea(
@@ -69,7 +77,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  
+
                   Expanded(
                     child: SingleChildScrollView(
                       child: Column(
@@ -86,7 +94,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                             },
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // Age Field
                           _buildTextField(
                             controller: _ageController,
@@ -104,7 +112,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                             },
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // Weight Field
                           _buildTextField(
                             controller: _weightController,
@@ -115,14 +123,16 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                                 return 'Please enter your weight';
                               }
                               final weight = double.tryParse(value);
-                              if (weight == null || weight < 30 || weight > 300) {
+                              if (weight == null ||
+                                  weight < 30 ||
+                                  weight > 300) {
                                 return 'Please enter a valid weight (30-300 kg)';
                               }
                               return null;
                             },
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // Height Field
                           _buildTextField(
                             controller: _heightController,
@@ -133,14 +143,16 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                                 return 'Please enter your height';
                               }
                               final height = double.tryParse(value);
-                              if (height == null || height < 100 || height > 250) {
+                              if (height == null ||
+                                  height < 100 ||
+                                  height > 250) {
                                 return 'Please enter a valid height (100-250 cm)';
                               }
                               return null;
                             },
                           ),
                           const SizedBox(height: 24),
-                          
+
                           // Gender Selection
                           _buildDropdownRow(
                             'Gender :',
@@ -149,38 +161,41 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
                             (value) => setState(() => _selectedGender = value!),
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // Fitness Goal Selection
                           _buildDropdownRow(
                             'Fitness Goal :',
                             _selectedFitnessGoal,
                             _fitnessGoals,
-                            (value) => setState(() => _selectedFitnessGoal = value!),
+                            (value) =>
+                                setState(() => _selectedFitnessGoal = value!),
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // Activity Level Selection
                           _buildDropdownRow(
                             'Activity Level :',
                             _selectedActivityLevel,
                             _activityLevels,
-                            (value) => setState(() => _selectedActivityLevel = value!),
+                            (value) =>
+                                setState(() => _selectedActivityLevel = value!),
                           ),
                           const SizedBox(height: 16),
-                          
+
                           // Diet Type Selection
                           _buildDropdownRow(
                             'Diet Type :',
                             _selectedDietType,
                             _dietTypes,
-                            (value) => setState(() => _selectedDietType = value!),
+                            (value) =>
+                                setState(() => _selectedDietType = value!),
                           ),
                           const SizedBox(height: 40),
                         ],
                       ),
                     ),
                   ),
-                  
+
                   // Continue Button
                   SizedBox(
                     width: double.infinity,
@@ -221,10 +236,10 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
+        color: const Color.fromARGB(230, 255, 255, 255),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.grey.withOpacity(0.3),
+          color: const Color.fromARGB(77, 158, 158, 158),
           width: 1,
         ),
       ),
@@ -233,10 +248,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
         keyboardType: keyboardType ?? TextInputType.text,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(
-            color: Colors.grey.shade600,
-            fontSize: 16,
-          ),
+          hintStyle: TextStyle(color: Colors.grey.shade600, fontSize: 16),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
@@ -271,12 +283,9 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withAlpha(230),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.grey.withOpacity(0.3),
-                width: 1,
-              ),
+              border: Border.all(color: Colors.grey.withAlpha(77), width: 1),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
@@ -307,7 +316,7 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
     if (_formKey.currentState!.validate()) {
       try {
         final authService = Provider.of<AuthService>(context, listen: false);
-        
+
         // Update user profile with personalization data
         await authService.updateUserProfile({
           'displayName': _nameController.text.trim(),
@@ -315,12 +324,15 @@ class _PersonalizationScreenState extends State<PersonalizationScreen> {
           'weight': double.parse(_weightController.text),
           'height': double.parse(_heightController.text),
           'gender': _selectedGender,
-          'fitnessGoal': _selectedFitnessGoal.toLowerCase().replaceAll(' ', '_'),
+          'fitnessGoal': _selectedFitnessGoal.toLowerCase().replaceAll(
+            ' ',
+            '_',
+          ),
           'activityLevel': _selectedActivityLevel.toLowerCase(),
           'dietaryRestrictions': [_selectedDietType.toLowerCase()],
           'profileCompleted': true,
         });
-        
+
         if (mounted) {
           // Navigate to home screen after successful profile update
           Navigator.pushReplacementNamed(context, '/home');
