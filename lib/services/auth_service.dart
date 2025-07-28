@@ -177,4 +177,20 @@ class AuthService extends ChangeNotifier {
       throw 'Failed to update profile: $e';
     }
   }
+
+  // Update profile picture URL
+  Future<void> updateProfilePicture(String profilePictureUrl) async {
+    if (currentUser == null) return;
+
+    try {
+      await _firestore.collection('users').doc(currentUser!.uid).update({
+        'profilePictureUrl': profilePictureUrl,
+        'updatedAt': DateTime.now(),
+      });
+      notifyListeners();
+    } catch (e) {
+      log('Error updating profile picture: $e');
+      throw 'Failed to update profile picture: $e';
+    }
+  }
 }
