@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../workout/workout_plan_screen.dart';
+import '../health/hydration_tracker_screen.dart';
+import '../health/nutrition_tracker_screen.dart';
+import '../health/sleep_analytics_screen.dart';
+import '../progress/progress_dashboard_screen.dart';
+import '../profile/profile_screen.dart';
+import '../../services/user_profile_service.dart';
+import '../../models/user_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,6 +18,38 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  UserModel? _userProfile;
+  Map<String, dynamic>? _todayProgress;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    setState(() => _isLoading = true);
+    
+    try {
+      // Load user profile
+      final profile = await UserProfileService.getUserProfile();
+      
+      // Load today's progress
+      final today = DateTime.now();
+      final dateString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+      final progress = await UserProfileService.getUserProgress(dateString);
+      
+      setState(() {
+        _userProfile = profile;
+        _todayProgress = progress ?? {};
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading user data: $e');
+      setState(() => _isLoading = false);
+    }
+  }
 
   void _showLogoutDialog() {
     showDialog(
@@ -83,33 +123,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'MetaWell+',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          'Home',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
         ),
-        backgroundColor: const Color(0xFF1565C0),
-        foregroundColor: Colors.white,
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.person),
-            onSelected: (String value) {
-              if (value == 'logout') {
-                _showLogoutDialog();
-              }
-            },
-            itemBuilder: (BuildContext context) => [
-              const PopupMenuItem<String>(
-                value: 'logout',
-                child: Row(
-                  children: [
-                    Icon(Icons.logout, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Logout', style: TextStyle(color: Colors.red)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.settings, color: Colors.black),
+          onPressed: () => _showLogoutDialog(),
+        ),
+        actions: [],
       ),
       body: _buildBody(),
       bottomNavigationBar: BottomNavigationBar(
@@ -120,18 +143,21 @@ class _HomeScreenState extends State<HomeScreen> {
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+            icon: Icon(Icons.home),
+            label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.fitness_center),
-            label: 'Workout',
+            icon: Icon(Icons.show_chart),
+            label: 'Progress',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant),
-            label: 'Nutrition',
+            icon: Icon(Icons.smart_toy),
+            label: 'AI chat',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'AI Chat'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
         ],
       ),
     );
@@ -142,160 +168,414 @@ class _HomeScreenState extends State<HomeScreen> {
       case 0:
         return _buildDashboard();
       case 1:
-        return _buildWorkoutTab();
+        return _buildProgressTab();
       case 2:
-        return _buildNutritionTab();
-      case 3:
         return _buildChatTab();
+      case 3:
+        return _buildProfileTab();
       default:
         return _buildDashboard();
     }
   }
 
   Widget _buildDashboard() {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (_userProfile == null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Unable to load your profile',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _loadUserData,
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    }
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Welcome message
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Welcome back!',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Ready to continue your fitness journey?',
-                  style: TextStyle(fontSize: 16, color: Colors.white70),
-                ),
-              ],
+          // Personal Welcome
+          _buildPersonalWelcome(),
+          const SizedBox(height: 20),
+          
+          // Today's Workout Plan
+          _buildWorkoutPlanCard(),
+          const SizedBox(height: 20),
+          
+          // Water Intake
+          _buildWaterIntakeCard(),
+          const SizedBox(height: 20),
+          
+          // Meal Tracker
+          _buildMealTrackerCard(),
+          const SizedBox(height: 20),
+          
+          // Sleep Analytics
+          _buildSleepAnalyticsCard(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPersonalWelcome() {
+    final userName = _userProfile?.displayName ?? 'User';
+    final fitnessGoal = _userProfile?.fitnessGoal?.replaceAll('_', ' ').toUpperCase() ?? 'FITNESS';
+    
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Hello, $userName!',
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 8),
+          Text(
+            'Goal: $fitnessGoal',
+            style: const TextStyle(fontSize: 16, color: Colors.white70),
+          ),
+        ],
+      ),
+    );
+  }
 
-          // Quick stats
+  Widget _buildWorkoutPlanCard() {
+    final workoutPlan = UserProfileService.generateWorkoutPlan(_userProfile!);
+    final totalCalories = workoutPlan.fold<int>(0, (sum, exercise) => sum + (exercise['calories'] as int));
+    final isCompleted = _todayProgress?['workout']?['completed'] == true;
+    
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE3F2FD),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: _buildStatCard(
-                  'Steps',
-                  '8,547',
-                  Icons.directions_walk,
-                  Colors.green,
-                ),
+              const Text(
+                "Today's Workout Plan",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildStatCard(
-                  'Calories',
-                  '1,247',
-                  Icons.local_fire_department,
-                  Colors.orange,
-                ),
-              ),
+              if (isCompleted)
+                const Icon(Icons.check_circle, color: Colors.green, size: 24),
             ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${workoutPlan.length} exercises • ~$totalCalories cal burn',
+            style: const TextStyle(fontSize: 14, color: Colors.grey),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard(
-                  'Water',
-                  '1.5L',
-                  Icons.water_drop,
-                  Colors.blue,
+          Center(
+            child: SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const WorkoutPlanScreen(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isCompleted ? Colors.green[300] : Colors.grey[300],
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  elevation: 0,
+                ),
+                child: Text(
+                  isCompleted ? 'Workout Complete' : 'Start Workout',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _buildStatCard(
-                  'Sleep',
-                  '7.5h',
-                  Icons.bedtime,
-                  Colors.purple,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-
-          // Today's workout
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withAlpha(26),
-                  spreadRadius: 1,
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Today's Workout",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Upper Body Strength',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.schedule, size: 16, color: Colors.grey),
-                    const SizedBox(width: 4),
-                    const Text(
-                      '45 minutes',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                    const Spacer(),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1565C0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      child: const Text(
-                        'Start',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildWaterIntakeCard() {
+    final waterGoal = UserProfileService.calculateWaterIntakeGoal(_userProfile!);
+    final currentIntake = (_todayProgress?['hydration']?['current'] ?? 0.0).toDouble();
+    final progress = (currentIntake / waterGoal).clamp(0.0, 1.0);
+    
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HydrationTrackerScreen(),
+          ),
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Water Intake',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+              Text(
+                '${currentIntake.toStringAsFixed(1)}L / ${waterGoal.toStringAsFixed(1)}L',
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            height: 12,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: progress,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMealTrackerCard() {
+    final macroTargets = UserProfileService.calculateMacroTargets(_userProfile!);
+    final currentNutrition = _todayProgress?['nutrition'] ?? {};
+    
+    final proteinCurrent = (currentNutrition['protein'] ?? 0.0).toDouble();
+    final fatCurrent = (currentNutrition['fat'] ?? 0.0).toDouble();
+    final carbsCurrent = (currentNutrition['carbs'] ?? 0.0).toDouble();
+    
+    final proteinProgress = ((proteinCurrent / macroTargets['protein']!) * 100).round().clamp(0, 100);
+    final fatProgress = ((fatCurrent / macroTargets['fat']!) * 100).round().clamp(0, 100);
+    final carbsProgress = ((carbsCurrent / macroTargets['carbs']!) * 100).round().clamp(0, 100);
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Meal Tracker',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildMacroCircle('Proteins', proteinProgress, _getProgressColor(proteinProgress)),
+            _buildMacroCircle('Fat', fatProgress, _getProgressColor(fatProgress)),
+            _buildMacroCircle('Carbs', carbsProgress, _getProgressColor(carbsProgress)),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Center(
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NutritionTrackerScreen(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey[300],
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                elevation: 0,
+              ),
+              child: const Text(
+                'Log Meal',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+  
+  Color _getProgressColor(int progress) {
+    if (progress >= 80) return Colors.green;
+    if (progress >= 50) return Colors.orange;
+    return Colors.red;
+  }
+
+  Widget _buildMacroCircle(String label, int percentage, Color color) {
+    return Column(
+      children: [
+        SizedBox(
+          width: 60,
+          height: 60,
+          child: Stack(
+            children: [
+              CircularProgressIndicator(
+                value: percentage / 100,
+                strokeWidth: 6,
+                backgroundColor: Colors.grey[300],
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+              ),
+              Center(
+                child: Text(
+                  '$percentage%',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12, color: Colors.black87),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSleepAnalyticsCard() {
+    final todaySleep = _todayProgress?['sleep'];
+    final sleepHours = todaySleep?['hours'] ?? 0.0;
+    final sleepQuality = ((sleepHours / 8.0) * 100).round().clamp(0, 100);
+    
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SleepAnalyticsScreen(),
+          ),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE1BEE7),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Sleep Analytics',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        sleepHours > 0 ? 'Last night: ${sleepHours.toStringAsFixed(1)}h' : 'Track your sleep',
+                        style: const TextStyle(fontSize: 14, color: Colors.white),
+                      ),
+                      Text(
+                        sleepHours > 0 ? 'Sleep quality score' : 'for better insights',
+                        style: const TextStyle(fontSize: 14, color: Colors.white),
+                      ),
+                      if (sleepHours > 0)
+                        Text(
+                          _getSleepQualityText(sleepQuality),
+                          style: const TextStyle(fontSize: 14, color: Colors.white),
+                        ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 80,
+                  height: 80,
+                  child: Stack(
+                    children: [
+                      CircularProgressIndicator(
+                        value: sleepQuality / 100,
+                        strokeWidth: 8,
+                        backgroundColor: Colors.white.withOpacity(0.3),
+                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                      Center(
+                        child: Text(
+                          '$sleepQuality%',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  
+  String _getSleepQualityText(int quality) {
+    if (quality >= 80) return 'Excellent sleep!';
+    if (quality >= 60) return 'Good sleep';
+    if (quality >= 40) return 'Fair sleep';
+    return 'Poor sleep';
   }
 
   Widget _buildStatCard(
@@ -333,53 +613,45 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildWorkoutTab() {
+  Widget _buildProgressTab() {
+    // Navigate to Progress Dashboard immediately when this tab is accessed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ProgressDashboardScreen(),
+        ),
+      ).then((_) {
+        // Reset to home tab when returning from progress dashboard
+        setState(() {
+          _selectedIndex = 0;
+        });
+      });
+    });
+    
     return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.fitness_center, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
-          Text(
-            'Workout Plans',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Coming Soon!',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-        ],
-      ),
+      child: CircularProgressIndicator(),
     );
   }
 
-  Widget _buildNutritionTab() {
+  Widget _buildProfileTab() {
+    // Navigate to Profile Screen immediately when this tab is accessed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ProfileScreen(),
+        ),
+      ).then((_) {
+        // Reset to home tab when returning from profile screen
+        setState(() {
+          _selectedIndex = 0;
+        });
+      });
+    });
+    
     return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.restaurant, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
-          Text(
-            'Nutrition Tracker',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Coming Soon!',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-        ],
-      ),
+      child: CircularProgressIndicator(),
     );
   }
 

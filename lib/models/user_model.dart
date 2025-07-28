@@ -16,6 +16,7 @@ class UserModel {
   final String? fitnessGoal; // weight_loss, muscle_gain, maintenance
   final String? activityLevel; // sedentary, light, moderate, active, very_active
   final List<String>? dietaryRestrictions;
+  final String? profilePictureUrl;
   
   UserModel({
     required this.uid,
@@ -31,6 +32,7 @@ class UserModel {
     this.fitnessGoal,
     this.activityLevel,
     this.dietaryRestrictions,
+    this.profilePictureUrl,
   });
   
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -52,6 +54,7 @@ class UserModel {
       dietaryRestrictions: data['dietaryRestrictions'] != null
           ? List<String>.from(data['dietaryRestrictions'])
           : null,
+      profilePictureUrl: data['profilePictureUrl'],
     );
   }
   
@@ -69,6 +72,7 @@ class UserModel {
       'fitnessGoal': fitnessGoal,
       'activityLevel': activityLevel,
       'dietaryRestrictions': dietaryRestrictions,
+      'profilePictureUrl': profilePictureUrl,
     };
   }
   
@@ -86,6 +90,7 @@ class UserModel {
     String? fitnessGoal,
     String? activityLevel,
     List<String>? dietaryRestrictions,
+    String? profilePictureUrl,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -101,6 +106,7 @@ class UserModel {
       fitnessGoal: fitnessGoal ?? this.fitnessGoal,
       activityLevel: activityLevel ?? this.activityLevel,
       dietaryRestrictions: dietaryRestrictions ?? this.dietaryRestrictions,
+      profilePictureUrl: profilePictureUrl ?? this.profilePictureUrl,
     );
   }
   
