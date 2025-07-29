@@ -38,8 +38,10 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
         });
       }
     } catch (e) {
-      print('Error loading user data: $e');
+      // Handle error gracefully - log for debugging and stop loading
+      debugPrint('Error loading workout plan data: $e');
       setState(() => _isLoading = false);
+      // Screen will show empty state, allowing user to try again or navigate away
     }
   }
 

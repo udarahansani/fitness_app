@@ -43,8 +43,10 @@ class _HydrationTrackerScreenState extends State<HydrationTrackerScreen> {
         });
       }
     } catch (e) {
-      print('Error loading user data: $e');
+      // Handle error gracefully - set loading to false and log for debugging
+      debugPrint('Error loading hydration data: $e');
       setState(() => _isLoading = false);
+      // UI will show default values and allow user to continue tracking
     }
   }
 

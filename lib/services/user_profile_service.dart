@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
 
 class UserProfileService {
@@ -21,7 +22,8 @@ class UserProfileService {
       }
       return null;
     } catch (e) {
-      print('Error fetching user profile: $e');
+      // Error fetching user profile - return null for graceful degradation
+      debugPrint('Error fetching user profile: $e');
       return null;
     }
   }
@@ -35,7 +37,8 @@ class UserProfileService {
       await _firestore.collection('users').doc(userId).update(updates);
       return true;
     } catch (e) {
-      print('Error updating user profile: $e');
+      // Error updating user profile - return false to indicate failure
+      debugPrint('Error updating user profile: $e');
       return false;
     }
   }
@@ -261,7 +264,8 @@ class UserProfileService {
 
       return true;
     } catch (e) {
-      print('Error saving user progress: $e');
+      // Error saving user progress - return false to indicate failure
+      debugPrint('Error saving user progress: $e');
       return false;
     }
   }
@@ -284,7 +288,8 @@ class UserProfileService {
       }
       return null;
     } catch (e) {
-      print('Error fetching user progress: $e');
+      // Error fetching user progress - return null for graceful degradation
+      debugPrint('Error fetching user progress: $e');
       return null;
     }
   }
@@ -312,7 +317,8 @@ class UserProfileService {
         return data;
       }).toList();
     } catch (e) {
-      print('Error fetching weekly progress: $e');
+      // Error fetching weekly progress - return empty list for graceful degradation
+      debugPrint('Error fetching weekly progress: $e');
       return [];
     }
   }
