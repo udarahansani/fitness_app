@@ -19,13 +19,10 @@ class ProfilePictureService {
         throw 'User not authenticated';
       }
 
-      // Check if ImagePicker is available
-      final ImagePicker picker = ImagePicker();
-      
       XFile? image;
       try {
         // Pick image with error handling
-        image = await picker.pickImage(
+        image = await _picker.pickImage(
           source: source,
           maxWidth: 500,
           maxHeight: 500,

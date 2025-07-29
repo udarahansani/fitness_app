@@ -189,11 +189,11 @@ class _NutritionTrackerScreenState extends State<NutritionTrackerScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       children: [
-                        _buildMacroCard('Protein', 'protein', '${_macroTargets['protein']!.toInt()}g'),
+                        _buildMacroCard('Protein', 'protein', '${_macroTargets['protein']!.toInt()}g', const Color(0xFF4CAF50)),
                         const SizedBox(height: 12),
-                        _buildMacroCard('Fat', 'fat', '${_macroTargets['fat']!.toInt()}g'),
+                        _buildMacroCard('Fat', 'fat', '${_macroTargets['fat']!.toInt()}g', const Color(0xFFFF9800)),
                         const SizedBox(height: 12),
-                        _buildMacroCard('Carbs', 'carbs', '${_macroTargets['carbs']!.toInt()}g'),
+                        _buildMacroCard('Carbs', 'carbs', '${_macroTargets['carbs']!.toInt()}g', const Color(0xFF2196F3)),
                       ],
                     ),
                   ),
@@ -331,9 +331,10 @@ class _NutritionTrackerScreenState extends State<NutritionTrackerScreen> {
     );
   }
 
-  Widget _buildMacroCard(String macroName, String macroKey, String target) {
+  Widget _buildMacroCard(String macroName, String macroKey, String target, Color color) {
     double progress = _getProgressPercentage(macroKey);
     int percentage = (progress * 100).round();
+    double currentValue = _currentIntake[macroKey]!;
     
     return Container(
       width: double.infinity,
@@ -343,7 +344,7 @@ class _NutritionTrackerScreenState extends State<NutritionTrackerScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -357,32 +358,46 @@ class _NutritionTrackerScreenState extends State<NutritionTrackerScreen> {
             children: [
               Row(
                 children: [
-                  Text(
-                    '$percentage%',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '$percentage%',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: color,
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 20),
-                  Text(
-                    macroName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black,
-                    ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        macroName,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        '${currentValue.toStringAsFixed(1)}g of $target',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
-              ),
-              Text(
-                target,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
               ),
             ],
           ),
@@ -392,7 +407,7 @@ class _NutritionTrackerScreenState extends State<NutritionTrackerScreen> {
             child: LinearProgressIndicator(
               value: progress > 1.0 ? 1.0 : progress,
               backgroundColor: Colors.grey[300],
-              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF42A5F5)),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
               minHeight: 8,
             ),
           ),
