@@ -29,8 +29,8 @@ class _NutritionTrackerScreenState extends State<NutritionTrackerScreen> {
   // Food log entries
   final List<Map<String, dynamic>> _foodLog = [
     {'name': 'Egg', 'value': '6 g', 'type': 'protein'},
-    {'name': 'Brown Rice', 'value': '44 carbs', 'type': 'carbs'},
-    {'name': 'Avocardo', 'value': '15 g fat', 'type': 'fat'},
+    {'name': 'Brown Rice', 'value': '44 g carbs', 'type': 'carbs'},
+    {'name': 'Avocado', 'value': '15 g fat', 'type': 'fat'},
   ];
 
   double _getProgressPercentage(String macro) {
@@ -115,7 +115,7 @@ class _NutritionTrackerScreenState extends State<NutritionTrackerScreen> {
   void _addFoodEntry(String foodName, String macroType, double amount) {
     setState(() {
       // Add to food log
-      String unit = macroType == 'carbs' ? 'carbs' : 'g $macroType';
+      String unit = macroType == 'carbs' ? 'g carbs' : 'g $macroType';
       _foodLog.add({
         'name': foodName,
         'value': '${amount.toInt()} $unit',

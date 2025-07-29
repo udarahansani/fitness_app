@@ -403,58 +403,91 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
           // Stacked bar chart
           SizedBox(
             height: 150,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: List.generate(_nutrientData.length, (index) {
-                final data = _nutrientData[index];
-                final total = data.reduce((a, b) => a + b);
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Find the maximum total to normalize all bars
+                double maxTotal = _nutrientData.map((data) => data.reduce((a, b) => a + b)).reduce((a, b) => a > b ? a : b);
+                double availableHeight = 130; // Leave space for padding
                 
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    SizedBox(
-                      width: 40,
-                      height: total * 1.2, // Scale for visualization
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          // Fat (purple)
-                          Container(
-                            width: 40,
-                            height: data[2] * 1.2,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF9C27B0),
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(4),
-                                topRight: Radius.circular(4),
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: List.generate(_nutrientData.length, (index) {
+                    final data = _nutrientData[index];
+                    final total = data.reduce((a, b) => a + b);
+                    
+                    // Calculate scale factor to prevent overflow
+                    double scaleFactor = availableHeight / maxTotal;
+                    
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            // Day label
+                            Text(
+                              'Day ${index + 1}',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
-                          ),
-                          // Carbs (yellow/orange)
-                          Container(
-                            width: 40,
-                            height: data[1] * 1.2,
-                            color: const Color(0xFFFFB74D),
-                          ),
-                          // Protein (blue)
-                          Container(
-                            width: 40,
-                            height: data[0] * 1.2,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFF42A5F5),
-                              borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(4),
-                                bottomRight: Radius.circular(4),
+                            const SizedBox(height: 4),
+                            // Stacked bar
+                            Container(
+                              width: 32,
+                              height: total * scaleFactor,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  // Fat (purple) - top
+                                  if (data[2] > 0)
+                                    Container(
+                                      width: 32,
+                                      height: data[2] * scaleFactor,
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFF9C27B0),
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(4),
+                                          topRight: Radius.circular(4),
+                                        ),
+                                      ),
+                                    ),
+                                  // Carbs (orange) - middle
+                                  if (data[1] > 0)
+                                    Container(
+                                      width: 32,
+                                      height: data[1] * scaleFactor,
+                                      color: const Color(0xFFFFB74D),
+                                    ),
+                                  // Protein (blue) - bottom
+                                  if (data[0] > 0)
+                                    Container(
+                                      width: 32,
+                                      height: data[0] * scaleFactor,
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFF42A5F5),
+                                        borderRadius: BorderRadius.only(
+                                          bottomLeft: Radius.circular(4),
+                                          bottomRight: Radius.circular(4),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    );
+                  }),
                 );
-              }),
+              },
             ),
           ),
           
