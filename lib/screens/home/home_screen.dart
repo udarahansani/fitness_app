@@ -522,41 +522,51 @@ class _HomeScreenState extends State<HomeScreen> {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildMacroCircle('Proteins', proteinProgress, const Color(0xFF4CAF50)), // Green
-            _buildMacroCircle('Fat', fatProgress, const Color(0xFFFF9800)), // Orange
-            _buildMacroCircle('Carbs', carbsProgress, const Color(0xFF2196F3)), // Blue
-          ],
-        ),
-        const SizedBox(height: 16),
-        Center(
-          child: SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const NutritionTrackerScreen(),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE3F2FD),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildMacroCircle('Proteins', proteinProgress, const Color(0xFF4CAF50)), // Green
+                  _buildMacroCircle('Fat', fatProgress, const Color(0xFFFF9800)), // Orange
+                  _buildMacroCircle('Carbs', carbsProgress, const Color(0xFF2196F3)), // Blue
+                ],
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const NutritionTrackerScreen(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[300],
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    elevation: 0,
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[300],
-                foregroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
+                  child: const Text(
+                    'Log Meal',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
                 ),
-                elevation: 0,
               ),
-              child: const Text(
-                'Log Meal',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
-            ),
+            ],
           ),
         ),
       ],
@@ -571,6 +581,7 @@ class _HomeScreenState extends State<HomeScreen> {
           width: 70,
           height: 70,
           child: Stack(
+            alignment: Alignment.center,
             children: [
               Container(
                 width: 70,
@@ -580,20 +591,22 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: color.withValues(alpha: 0.1),
                 ),
               ),
-              CircularProgressIndicator(
-                value: percentage / 100.0,
-                strokeWidth: 6,
-                backgroundColor: Colors.grey[300],
-                valueColor: AlwaysStoppedAnimation<Color>(color),
+              SizedBox(
+                width: 70,
+                height: 70,
+                child: CircularProgressIndicator(
+                  value: percentage / 100.0,
+                  strokeWidth: 6,
+                  backgroundColor: Colors.grey[300],
+                  valueColor: AlwaysStoppedAnimation<Color>(color),
+                ),
               ),
-              Center(
-                child: Text(
-                  '$percentage%',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
+              Text(
+                '$percentage%',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: color,
                 ),
               ),
             ],

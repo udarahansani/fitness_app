@@ -53,7 +53,7 @@ class WelcomeScreen extends StatelessWidget {
                     children: [
                       // Flexing arm logos
                       Image.asset(
-                        'lib/assests/images/logo2.jpg',
+                        'lib/assets/images/logo2.jpg',
                         width: 300,
                         height: 140,
                         fit: BoxFit.contain,
@@ -61,7 +61,7 @@ class WelcomeScreen extends StatelessWidget {
                       const SizedBox(height: 15),
                       // MetaWell logo with person icons
                       Image.asset(
-                        'lib/assests/images/logo1.jpg',
+                        'lib/assets/images/logo1.jpg',
                         width: 400,
                         height: 140,
                         fit: BoxFit.contain,
