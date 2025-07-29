@@ -788,7 +788,6 @@ class _AIChatScreenState extends State<AIChatScreen> {
     // Add personalized context if available
     if (_userData != null && _hasCompletePersonalInfo()) {
       String name = _userData!['displayName'] ?? '';
-      String goal = _userData!['fitnessGoal']?.toString().replaceAll('_', ' ') ?? '';
       if (name.isNotEmpty) {
         personalizedPrefix = "$name, ";
       }

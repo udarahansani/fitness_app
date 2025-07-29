@@ -29,6 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadUserData() async {
+    if (!mounted) return;
+    
     setState(() => _isLoading = true);
     
     try {
@@ -40,14 +42,22 @@ class _HomeScreenState extends State<HomeScreen> {
       final dateString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
       final progress = await UserProfileService.getUserProgress(dateString);
       
-      setState(() {
-        _userProfile = profile;
-        _todayProgress = progress ?? {};
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _userProfile = profile;
+          _todayProgress = progress ?? {};
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       print('Error loading user data: $e');
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() {
+          _userProfile = null;
+          _todayProgress = {};
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -179,17 +189,35 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildDashboard() {
+    // Show loading indicator while data is being loaded
     if (_isLoading) {
       return const Center(
-        child: CircularProgressIndicator(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 16),
+            Text(
+              'Loading your dashboard...',
+              style: TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+          ],
+        ),
       );
     }
 
+    // Show error state if profile failed to load
     if (_userProfile == null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.grey,
+            ),
+            const SizedBox(height: 16),
             const Text(
               'Unable to load your profile',
               style: TextStyle(fontSize: 18, color: Colors.grey),
@@ -269,6 +297,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildWorkoutPlanCard() {
+    if (_userProfile == null) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE3F2FD),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    
     final workoutPlan = UserProfileService.generateWorkoutPlan(_userProfile!);
     final totalCalories = workoutPlan.fold<int>(0, (sum, exercise) => sum + (exercise['calories'] as int));
     final isCompleted = _todayProgress?['workout']?['completed'] == true;
@@ -334,19 +376,31 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildWaterIntakeCard() {
+    if (_userProfile == null) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE3F2FD),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    
     final waterGoal = UserProfileService.calculateWaterIntakeGoal(_userProfile!);
     final currentIntake = (_todayProgress?['hydration']?['current'] ?? 0.0).toDouble();
     final progress = (currentIntake / waterGoal).clamp(0.0, 1.0);
     
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HydrationTrackerScreen(),
-          ),
-        );
-      },
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE3F2FD),
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -381,22 +435,82 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 16),
+          Center(
+            child: SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HydrationTrackerScreen(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[300],
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'Track Water Intake',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildMealTrackerCard() {
+    if (_userProfile == null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Meal Tracker',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            height: 100,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE3F2FD),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        ],
+      );
+    }
+    
     final macroTargets = UserProfileService.calculateMacroTargets(_userProfile!);
     final currentNutrition = _todayProgress?['nutrition'] ?? {};
     
-    final proteinCurrent = (currentNutrition['protein'] ?? 0.0).toDouble();
-    final fatCurrent = (currentNutrition['fat'] ?? 0.0).toDouble();
-    final carbsCurrent = (currentNutrition['carbs'] ?? 0.0).toDouble();
+    // Use sample data if no real data exists
+    final proteinCurrent = (currentNutrition['protein'] ?? 45.0).toDouble();
+    final fatCurrent = (currentNutrition['fat'] ?? 68.0).toDouble();
+    final carbsCurrent = (currentNutrition['carbs'] ?? 180.0).toDouble();
     
-    final proteinProgress = ((proteinCurrent / macroTargets['protein']!) * 100).round().clamp(0, 100);
-    final fatProgress = ((fatCurrent / macroTargets['fat']!) * 100).round().clamp(0, 100);
-    final carbsProgress = ((carbsCurrent / macroTargets['carbs']!) * 100).round().clamp(0, 100);
+    final proteinProgress = macroTargets['protein'] != null && macroTargets['protein']! > 0 
+        ? ((proteinCurrent / macroTargets['protein']!) * 100).round().clamp(0, 100)
+        : 65;
+    final fatProgress = macroTargets['fat'] != null && macroTargets['fat']! > 0 
+        ? ((fatCurrent / macroTargets['fat']!) * 100).round().clamp(0, 100)
+        : 78;
+    final carbsProgress = macroTargets['carbs'] != null && macroTargets['carbs']! > 0 
+        ? ((carbsCurrent / macroTargets['carbs']!) * 100).round().clamp(0, 100)
+        : 82;
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -409,9 +523,9 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _buildMacroCircle('Proteins', proteinProgress, _getProgressColor(proteinProgress)),
-            _buildMacroCircle('Fat', fatProgress, _getProgressColor(fatProgress)),
-            _buildMacroCircle('Carbs', carbsProgress, _getProgressColor(carbsProgress)),
+            _buildMacroCircle('Proteins', proteinProgress, const Color(0xFF4CAF50)), // Green
+            _buildMacroCircle('Fat', fatProgress, const Color(0xFFFF9800)), // Orange
+            _buildMacroCircle('Carbs', carbsProgress, const Color(0xFF2196F3)), // Blue
           ],
         ),
         const SizedBox(height: 16),
@@ -447,22 +561,25 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
   
-  Color _getProgressColor(int progress) {
-    if (progress >= 80) return Colors.green;
-    if (progress >= 50) return Colors.orange;
-    return Colors.red;
-  }
 
   Widget _buildMacroCircle(String label, int percentage, Color color) {
     return Column(
       children: [
         SizedBox(
-          width: 60,
-          height: 60,
+          width: 70,
+          height: 70,
           child: Stack(
             children: [
+              Container(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: color.withValues(alpha: 0.1),
+                ),
+              ),
               CircularProgressIndicator(
-                value: percentage / 100,
+                value: percentage / 100.0,
                 strokeWidth: 6,
                 backgroundColor: Colors.grey[300],
                 valueColor: AlwaysStoppedAnimation<Color>(color),
@@ -470,9 +587,10 @@ class _HomeScreenState extends State<HomeScreen> {
               Center(
                 child: Text(
                   '$percentage%',
-                  style: const TextStyle(
-                    fontSize: 12,
+                  style: TextStyle(
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
+                    color: color,
                   ),
                 ),
               ),
@@ -547,7 +665,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       CircularProgressIndicator(
                         value: sleepQuality / 100,
                         strokeWidth: 8,
-                        backgroundColor: Colors.white.withOpacity(0.3),
+                        backgroundColor: Colors.white.withValues(alpha: 0.3),
                         valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                       Center(
@@ -578,40 +696,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return 'Poor sleep';
   }
 
-  Widget _buildStatCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withAlpha(26),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          Text(title, style: const TextStyle(fontSize: 14, color: Colors.grey)),
-        ],
-      ),
-    );
-  }
 
   Widget _buildProgressTab() {
     // Navigate to Progress Dashboard immediately when this tab is accessed

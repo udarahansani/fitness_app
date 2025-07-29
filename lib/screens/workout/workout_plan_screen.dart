@@ -119,7 +119,7 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.withOpacity(0.1),
+                              color: Colors.grey.withValues(alpha: 0.1),
                               spreadRadius: 1,
                               blurRadius: 4,
                               offset: const Offset(0, 2),
@@ -141,7 +141,7 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                                 child: Container(
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
-                                      colors: [_getExerciseColor(exercise['type']), _getExerciseColor(exercise['type']).withOpacity(0.8)],
+                                      colors: [_getExerciseColor(exercise['type']), _getExerciseColor(exercise['type']).withValues(alpha: 0.8)],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     ),

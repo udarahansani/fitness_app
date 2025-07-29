@@ -12,10 +12,16 @@ class _JumpingWorkoutScreenState extends State<JumpingWorkoutScreen>
     with TickerProviderStateMixin {
   Timer? _timer;
   int _seconds = 15;
-  final bool _isRunning = true;
   bool _isPaused = false;
   int _currentExercise = 1;
   final int _totalExercises = 4;
+  
+  final List<String> _exercises = [
+    'Jumping Jacks',
+    'Push-ups',
+    'Squats',
+    'Burpees'
+  ];
 
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
@@ -283,9 +289,9 @@ class _JumpingWorkoutScreenState extends State<JumpingWorkoutScreen>
           const SizedBox(height: 60),
           
           // Exercise Title
-          const Text(
-            'Jumping Jacks',
-            style: TextStyle(
+          Text(
+            _exercises[_currentExercise - 1],
+            style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
               color: Colors.black,

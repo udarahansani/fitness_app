@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../profile/profile_screen.dart';
 
 class ProgressDashboardScreen extends StatefulWidget {
   const ProgressDashboardScreen({super.key});
@@ -116,6 +117,14 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
           } else if (index == 2) {
             // Navigate to AI chat
             Navigator.pushNamed(context, '/ai_chat');
+          } else if (index == 3) {
+            // Navigate to profile
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ProfileScreen(),
+              ),
+            );
           }
           setState(() => _selectedIndex = index);
         },
@@ -153,7 +162,7 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -224,7 +233,7 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
@@ -345,8 +354,8 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
                       show: true,
                       gradient: LinearGradient(
                         colors: [
-                          const Color(0xFF42A5F5).withOpacity(0.3),
-                          const Color(0xFF42A5F5).withOpacity(0.1),
+                          const Color(0xFF42A5F5).withValues(alpha: 0.3),
+                          const Color(0xFF42A5F5).withValues(alpha: 0.1),
                         ],
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
@@ -371,7 +380,7 @@ class _ProgressDashboardScreenState extends State<ProgressDashboardScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 4,
             offset: const Offset(0, 2),
