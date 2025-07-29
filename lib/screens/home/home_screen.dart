@@ -50,7 +50,8 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      print('Error loading user data: $e');
+      // Handle data loading errors gracefully - reset state and allow retry
+      debugPrint('Error loading home screen data: $e');
       if (mounted) {
         setState(() {
           _userProfile = null;
@@ -58,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _isLoading = false;
         });
       }
+      // UI will show error state with retry option
     }
   }
 

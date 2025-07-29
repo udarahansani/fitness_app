@@ -36,18 +36,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadUserData() async {
     try {
-      print('Starting to load user data...');
       
       // Get Firebase Auth user first
       final firebaseUser = FirebaseAuth.instance.currentUser;
-      print('Firebase user: ${firebaseUser?.email}, UID: ${firebaseUser?.uid}');
       
       // Force fresh data by adding a small delay to ensure Firebase has processed updates
       await Future.delayed(const Duration(milliseconds: 300));
       
       // Load user profile from UserProfileService (primary source)
       final userProfile = await UserProfileService.getUserProfile();
-      print('UserProfile loaded: ${userProfile != null}');
       
       // Load fresh data directly from Firestore as backup
       Map<String, dynamic>? userData;
@@ -59,16 +56,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               .get();
           if (doc.exists) {
             userData = doc.data();
-            print('Fresh Firestore data loaded: ${userData != null}');
           }
         } catch (e) {
-          print('Error loading fresh Firestore data: $e');
+          // Silently handle Firestore access errors - continue with available data
+          // This prevents app crashes when offline or when there are permission issues
+          debugPrint('Failed to load additional user data: $e');
         }
       }
       
       // If no profile exists, create one with available data
       if (userProfile == null) {
-        print('No UserProfile found. Creating basic profile...');
         
         // Use Firebase Auth user data as fallback
         final basicData = userData ?? {
@@ -81,7 +78,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         
         // Reload after creating basic profile
         final newUserProfile = await UserProfileService.getUserProfile();
-        print('New profile created: ${newUserProfile != null}');
         
         setState(() {
           _userProfile = newUserProfile;
@@ -94,45 +90,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         });
       }
       
-      // Debug: Print loaded data
-      print('=== Profile Screen Loaded Data ===');
-      print('UserProfile is null: ${userProfile == null}');
-      print('UserData is null: ${userData == null}');
-      
-      if (userProfile != null) {
-        print('Profile - Name: "${userProfile.displayName}"');
-        print('Profile - Age: ${userProfile.age}');
-        print('Profile - Gender: "${userProfile.gender}"');
-        print('Profile - Weight: ${userProfile.weight}');
-        print('Profile - Height: ${userProfile.height}');
-        print('Profile - Fitness Goal: "${userProfile.fitnessGoal}"');
-        print('Profile - Activity Level: "${userProfile.activityLevel}"');
-        print('Profile - Profile Picture: "${userProfile.profilePictureUrl}"');
-      } else {
-        print('UserProfile is NULL!');
-      }
-      
-      if (userData != null) {
-        print('Fresh Firestore Data:');
-        print('  Name: "${userData['displayName']}"');
-        print('  Age: ${userData['age']}');
-        print('  Gender: "${userData['gender']}"');
-        print('  Weight: ${userData['weight']}');
-        print('  Height: ${userData['height']}');
-        print('  Fitness Goal: "${userData['fitnessGoal']}"');
-        print('  Activity Level: "${userData['activityLevel']}"');
-      } else {
-        print('UserData is NULL!');
-      }
-      print('==================================');
     } catch (e) {
-      print('Error loading user data: $e');
+      // Handle profile loading errors gracefully - UI will show defaults or prompt for setup
+      debugPrint('Error loading user profile: $e');
+      // Continue with null profile, which will trigger profile setup flow
     }
   }
 
   Future<void> _createBasicProfile(Map<String, dynamic> userData) async {
     try {
-      print('Creating basic profile with data: $userData');
       
       final authService = Provider.of<AuthService>(context, listen: false);
       final currentUser = FirebaseAuth.instance.currentUser;
@@ -153,16 +119,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'lastLoginAt': FieldValue.serverTimestamp(),
       };
       
-      print('Saving profile data: $basicProfileData');
       
       // Use AuthService for initial profile creation (handles document creation)
       await authService.updateUserProfile(basicProfileData);
-      print('Basic profile created successfully');
       
       // Small delay to ensure Firebase processes the data
       await Future.delayed(const Duration(milliseconds: 500));
     } catch (e) {
-      print('Error creating basic profile: $e');
+      // Handle profile creation errors - log for debugging but don't block UI
+      debugPrint('Error creating basic profile: $e');
+      // Allow user to continue using the app even if profile creation fails
     }
   }
 
@@ -316,8 +282,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   height: 50,
                   child: ElevatedButton(
                     onPressed: () async {
-                      // Debug: Print what we're passing to edit screen
-                      print('=== Navigating to Edit Screen ===');
                       
                       // Get current Firebase user as fallback
                       final currentUser = FirebaseAuth.instance.currentUser;
@@ -353,16 +317,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         profilePictureUrl = currentUser!.photoURL;
                       }
                       
-                      print('Passing to edit screen:');
-                      print('  Name: "$name"');
-                      print('  Age: "$age"');
-                      print('  Gender: "$gender"');
-                      print('  Weight: ${weight ?? "null"}');
-                      print('  Height: ${height ?? "null"}');
-                      print('  Fitness Goal: ${fitnessGoal ?? "null"}');
-                      print('  Activity Level: ${activityLevel ?? "null"}');
-                      print('  Profile Picture: ${profilePictureUrl ?? "null"}');
-                      print('================================');
                       
                       final result = await Navigator.push(
                         context,
@@ -383,7 +337,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       );
                       
                       if (result != null) {
-                        print('Profile was updated, reloading user data...');
                         
                         // Clear current data to force refresh
                         setState(() {
@@ -392,18 +345,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         });
                         
                         // Wait longer for Firebase to propagate changes
-                        print('Waiting for Firebase to propagate changes...');
                         await Future.delayed(const Duration(milliseconds: 500));
                         
                         if (!mounted) return;
                         
                         // Reload user data
-                        print('Fetching fresh data from Firebase...');
                         await _loadUserData();
                         
                         if (!mounted) return;
                         
-                        print('Profile data reloaded after update');
                         
                         // Show success notification
                         ScaffoldMessenger.of(context).showSnackBar(

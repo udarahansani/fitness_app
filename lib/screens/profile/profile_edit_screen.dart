@@ -44,17 +44,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   void initState() {
     super.initState();
     
-    // Debug: Print received data
-    print('=== Profile Edit Screen Data ===');
-    print('Name: "${widget.name}"');
-    print('Age: "${widget.age}"');
-    print('Gender: "${widget.gender}"');
-    print('Weight: "${widget.weight}"');
-    print('Height: "${widget.height}"');
-    print('Fitness Goal: "${widget.fitnessGoal}"');
-    print('Activity Level: "${widget.activityLevel}"');
-    print('Profile Picture URL: "${widget.profilePictureUrl}"');
-    print('================================');
     
     _nameController = TextEditingController(text: widget.name);
     _ageController = TextEditingController(text: widget.age);
@@ -594,13 +583,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       if (weight != null) updateData['weight'] = weight;
       if (height != null) updateData['height'] = height;
       
-      print('Updating profile with data: $updateData');
       
       // Use UserProfileService for profile updates
       final success = await UserProfileService.updateUserProfile(updateData);
       
       if (success) {
-        print('Profile updated successfully');
         
         // Return success to parent screen
         if (mounted) {
@@ -619,7 +606,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         _showErrorSnackBar('Failed to update profile. Please try again.');
       }
     } catch (e) {
-      print('Error updating profile: $e');
+      // Handle unexpected errors during profile update and show user-friendly message
+      debugPrint('Unexpected error updating profile: $e');
       _showErrorSnackBar('Error updating profile: $e');
     }
   }
