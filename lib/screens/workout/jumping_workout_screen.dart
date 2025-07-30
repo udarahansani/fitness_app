@@ -175,213 +175,234 @@ class _JumpingWorkoutScreenState extends State<JumpingWorkoutScreen>
         ),
         actions: [],
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 40),
-          
-          // Timer Display
-          Text(
-            _formatTime(_seconds),
-            style: const TextStyle(
-              fontSize: 64,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height - 
+                         MediaQuery.of(context).padding.top - 
+                         kToolbarHeight,
             ),
-          ),
-          const SizedBox(height: 60),
-          
-          // Exercise Animation Circle
-          Container(
-            width: 280,
-            height: 280,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Jumping Jacks Illustration
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // First figure (arms down)
-                        Container(
-                          width: 60,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFB74D),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Head
-                              CircleAvatar(
-                                radius: 12,
-                                backgroundColor: Color(0xFFD7B084),
-                              ),
-                              SizedBox(height: 4),
-                              // Body
-                              Icon(
-                                Icons.person,
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        // Second figure (arms up)
-                        Container(
-                          width: 60,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFFB74D),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // Head
-                              CircleAvatar(
-                                radius: 12,
-                                backgroundColor: Color(0xFFD7B084),
-                              ),
-                              SizedBox(height: 4),
-                              // Body with raised arms
-                              Icon(
-                                Icons.accessibility_new,
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    // Movement arrows
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.keyboard_arrow_up,
-                          color: Colors.green[400],
-                          size: 24,
-                        ),
-                        const SizedBox(width: 40),
-                        Icon(
-                          Icons.keyboard_arrow_up,
-                          color: Colors.green[400],
-                          size: 24,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 60),
-          
-          // Exercise Title
-          Text(
-            _exercises[_currentExercise - 1],
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          const SizedBox(height: 12),
-          
-          // Exercise Progress
-          Text(
-            'Exercise $_currentExercise of $_totalExercises',
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.black87,
-            ),
-          ),
-          const Spacer(),
-          
-          // Control Buttons
-          Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            child: Column(
               children: [
-                // Previous Button
-                SizedBox(
-                  width: 100,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: _currentExercise > 1 ? _previousExercise : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[300],
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Previous',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 20),
                 
-                // Pause Button
-                SizedBox(
-                  width: 100,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: _pauseTimer,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[300],
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      _isPaused ? 'Resume' : 'Pause',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                    ),
+                // Timer Display
+                Text(
+                  _formatTime(_seconds),
+                  style: const TextStyle(
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
                 ),
+                const SizedBox(height: 30),
                 
-                // Next Button
-                SizedBox(
-                  width: 100,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: _nextExercise,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey[300],
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
+                // Exercise Animation Circle
+                Container(
+                  width: 240,
+                  height: 240,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Jumping Jacks Illustration
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // First figure (arms down)
+                              Container(
+                                width: 50,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFB74D),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                child: const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // Head
+                                    CircleAvatar(
+                                      radius: 10,
+                                      backgroundColor: Color(0xFFD7B084),
+                                    ),
+                                    SizedBox(height: 2),
+                                    // Body
+                                    Icon(
+                                      Icons.person,
+                                      color: Colors.white,
+                                      size: 30,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 15),
+                              // Second figure (arms up)
+                              Container(
+                                width: 50,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFB74D),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                child: const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // Head
+                                    CircleAvatar(
+                                      radius: 10,
+                                      backgroundColor: Color(0xFFD7B084),
+                                    ),
+                                    SizedBox(height: 2),
+                                    // Body with raised arms
+                                    Icon(
+                                      Icons.accessibility_new,
+                                      color: Colors.white,
+                                      size: 30,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          // Movement arrows
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.keyboard_arrow_up,
+                                color: Colors.green[400],
+                                size: 20,
+                              ),
+                              const SizedBox(width: 30),
+                              Icon(
+                                Icons.keyboard_arrow_up,
+                                color: Colors.green[400],
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Next',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                     ),
                   ),
                 ),
+                const SizedBox(height: 30),
+                
+                // Exercise Title
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    _exercises[_currentExercise - 1],
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                
+                // Exercise Progress
+                Text(
+                  'Exercise $_currentExercise of $_totalExercises',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 40),
+                
+                // Control Buttons
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // Previous Button
+                      Expanded(
+                        child: Container(
+                          height: 48,
+                          margin: const EdgeInsets.only(right: 8),
+                          child: ElevatedButton(
+                            onPressed: _currentExercise > 1 ? _previousExercise : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _currentExercise > 1 ? const Color(0xFF1565C0) : Colors.grey[300],
+                              foregroundColor: _currentExercise > 1 ? Colors.white : Colors.grey[600],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: const Text(
+                              'Previous',
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                      ),
+                      
+                      // Pause Button
+                      Expanded(
+                        child: Container(
+                          height: 48,
+                          margin: const EdgeInsets.symmetric(horizontal: 8),
+                          child: ElevatedButton(
+                            onPressed: _pauseTimer,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _isPaused ? const Color(0xFF4CAF50) : const Color(0xFFFF9800),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              _isPaused ? 'Resume' : 'Pause',
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                      ),
+                      
+                      // Next Button
+                      Expanded(
+                        child: Container(
+                          height: 48,
+                          margin: const EdgeInsets.only(left: 8),
+                          child: ElevatedButton(
+                            onPressed: _nextExercise,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF1565C0),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: const Text(
+                              'Next',
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 40),
               ],
             ),
           ),
-          const SizedBox(height: 20),
-        ],
+        ),
       ),
     );
   }
