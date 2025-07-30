@@ -7,6 +7,8 @@ import '../health/sleep_analytics_screen.dart';
 import '../progress/progress_dashboard_screen.dart';
 import '../profile/profile_screen.dart';
 import '../../services/user_profile_service.dart';
+import '../../services/nutrition_service.dart';
+import '../../services/sleep_service.dart';
 import '../../models/user_model.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -496,24 +498,6 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
     
-    final macroTargets = UserProfileService.calculateMacroTargets(_userProfile!);
-    final currentNutrition = _todayProgress?['nutrition'] ?? {};
-    
-    // Use sample data if no real data exists
-    final proteinCurrent = (currentNutrition['protein'] ?? 45.0).toDouble();
-    final fatCurrent = (currentNutrition['fat'] ?? 68.0).toDouble();
-    final carbsCurrent = (currentNutrition['carbs'] ?? 180.0).toDouble();
-    
-    final proteinProgress = macroTargets['protein'] != null && macroTargets['protein']! > 0 
-        ? ((proteinCurrent / macroTargets['protein']!) * 100).round().clamp(0, 100)
-        : 65;
-    final fatProgress = macroTargets['fat'] != null && macroTargets['fat']! > 0 
-        ? ((fatCurrent / macroTargets['fat']!) * 100).round().clamp(0, 100)
-        : 78;
-    final carbsProgress = macroTargets['carbs'] != null && macroTargets['carbs']! > 0 
-        ? ((carbsCurrent / macroTargets['carbs']!) * 100).round().clamp(0, 100)
-        : 82;
-    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -522,52 +506,76 @@ class _HomeScreenState extends State<HomeScreen> {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 16),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: const Color(0xFFE3F2FD),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        FutureBuilder<Map<String, int>>(
+          future: NutritionService.calculateMacroPercentages(_userProfile),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Container(
+                width: double.infinity,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE3F2FD),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+            
+            final percentages = snapshot.data!;
+            
+            return Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE3F2FD),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
                 children: [
-                  _buildMacroCircle('Proteins', proteinProgress, const Color(0xFF4CAF50)), // Green
-                  _buildMacroCircle('Fat', fatProgress, const Color(0xFFFF9800)), // Orange
-                  _buildMacroCircle('Carbs', carbsProgress, const Color(0xFF2196F3)), // Blue
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildMacroCircle('Proteins', percentages['protein']!, const Color(0xFF4CAF50)), // Green
+                      _buildMacroCircle('Fat', percentages['fat']!, const Color(0xFFFF9800)), // Orange
+                      _buildMacroCircle('Carbs', percentages['carbs']!, const Color(0xFF2196F3)), // Blue
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NutritionTrackerScreen(),
+                          ),
+                        ).then((_) {
+                          // Refresh the home screen when returning from nutrition tracker
+                          _loadUserData();
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[300],
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Log Meal',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const NutritionTrackerScreen(),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[300],
-                    foregroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: const Text(
-                    'Log Meal',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ],
     );
@@ -622,93 +630,97 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSleepAnalyticsCard() {
-    final todaySleep = _todayProgress?['sleep'];
-    final sleepHours = todaySleep?['hours'] ?? 0.0;
-    final sleepQuality = ((sleepHours / 8.0) * 100).round().clamp(0, 100);
-    
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const SleepAnalyticsScreen(),
-          ),
-        );
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color(0xFFE1BEE7),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Sleep Analytics',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: SleepService.getTodaySleepData(),
+      builder: (context, snapshot) {
+        final sleepData = snapshot.data;
+        final sleepDuration = sleepData?['duration'] ?? 0; // in minutes
+        final sleepQuality = sleepData?['quality'] ?? 0;
+        final sleepHours = sleepDuration / 60.0;
+        
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SleepAnalyticsScreen(),
+              ),
+            ).then((_) {
+              // Refresh the home screen when returning from sleep analytics
+              _loadUserData();
+            });
+          },
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE1BEE7),
+              borderRadius: BorderRadius.circular(16),
             ),
-            const SizedBox(height: 16),
-            Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        sleepHours > 0 ? 'Last night: ${sleepHours.toStringAsFixed(1)}h' : 'Track your sleep',
-                        style: const TextStyle(fontSize: 14, color: Colors.white),
-                      ),
-                      Text(
-                        sleepHours > 0 ? 'Sleep quality score' : 'for better insights',
-                        style: const TextStyle(fontSize: 14, color: Colors.white),
-                      ),
-                      if (sleepHours > 0)
-                        Text(
-                          _getSleepQualityText(sleepQuality),
-                          style: const TextStyle(fontSize: 14, color: Colors.white),
-                        ),
-                    ],
-                  ),
+                const Text(
+                  'Sleep Analytics',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
-                SizedBox(
-                  width: 80,
-                  height: 80,
-                  child: Stack(
-                    children: [
-                      CircularProgressIndicator(
-                        value: sleepQuality / 100,
-                        strokeWidth: 8,
-                        backgroundColor: Colors.white.withValues(alpha: 0.3),
-                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                      Center(
-                        child: Text(
-                          '$sleepQuality%',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            sleepDuration > 0 
+                                ? 'Last night: ${SleepService.formatDuration(sleepDuration)}'
+                                : 'Track your sleep',
+                            style: const TextStyle(fontSize: 14, color: Colors.white),
                           ),
-                        ),
+                          Text(
+                            sleepDuration > 0 ? 'Sleep quality score' : 'for better insights',
+                            style: const TextStyle(fontSize: 14, color: Colors.white),
+                          ),
+                          if (sleepDuration > 0)
+                            Text(
+                              SleepService.getSleepQualityText(sleepQuality),
+                              style: const TextStyle(fontSize: 14, color: Colors.white),
+                            ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(
+                      width: 80,
+                      height: 80,
+                      child: Stack(
+                        children: [
+                          CircularProgressIndicator(
+                            value: sleepQuality / 100,
+                            strokeWidth: 8,
+                            backgroundColor: Colors.white.withValues(alpha: 0.3),
+                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                          Center(
+                            child: Text(
+                              '$sleepQuality%',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
-  }
-  
-  String _getSleepQualityText(int quality) {
-    if (quality >= 80) return 'Excellent sleep!';
-    if (quality >= 60) return 'Good sleep';
-    if (quality >= 40) return 'Fair sleep';
-    return 'Poor sleep';
   }
 
 
