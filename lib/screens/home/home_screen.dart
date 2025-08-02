@@ -408,38 +408,65 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Water Intake',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-              Text(
-                '${currentIntake.toStringAsFixed(1)}L / ${waterGoal.toStringAsFixed(1)}L',
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-            ],
+          const Text(
+            'Water Intake',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 12),
-          Container(
-            height: 12,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: progress,
-              child: Container(
+          const SizedBox(height: 16),
+          
+          // Progress bar with rounded ends
+          Stack(
+            children: [
+              Container(
+                height: 12,
                 decoration: BoxDecoration(
-                  color: Colors.blue,
+                  color: Colors.grey[300],
                   borderRadius: BorderRadius.circular(6),
                 ),
               ),
-            ),
+              FractionallySizedBox(
+                alignment: Alignment.centerLeft,
+                widthFactor: progress,
+                child: Container(
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2196F3),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+              ),
+            ],
           ),
+          
+          const SizedBox(height: 8),
+          
+          // Progress text with circular indicator
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${currentIntake.toStringAsFixed(1)}L / ${waterGoal.toStringAsFixed(1)}L',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.water_drop,
+                  color: Colors.white,
+                  size: 18,
+                ),
+              ),
+            ],
+          ),
+          
           const SizedBox(height: 16),
+          
+          // Hydration Tracker button
           Center(
             child: SizedBox(
               width: double.infinity,
@@ -451,18 +478,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     MaterialPageRoute(
                       builder: (context) => const HydrationTrackerScreen(),
                     ),
-                  );
+                  ).then((_) {
+                    // Refresh data when returning from hydration tracker
+                    _loadUserData();
+                  });
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[300],
-                  foregroundColor: Colors.black,
+                  backgroundColor: const Color(0xFF42A5F5),
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24),
                   ),
                   elevation: 0,
                 ),
                 child: const Text(
-                  'Track Water Intake',
+                  'Hydration Tracker',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
               ),
@@ -472,6 +502,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 
   Widget _buildMealTrackerCard() {
     if (_userProfile == null) {
