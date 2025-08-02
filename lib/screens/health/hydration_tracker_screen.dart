@@ -50,7 +50,29 @@ class _HydrationTrackerScreenState extends State<HydrationTrackerScreen> {
     }
   }
 
-  void _addWater(double amount) {
+  Future<void> _refreshData() async {
+    if (_userProfile == null) return;
+    
+    try {
+      final today = DateTime.now();
+      final dateString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+      final progress = await UserProfileService.getUserProgress(dateString);
+      
+      if (mounted) {
+        setState(() {
+          _currentIntake = (progress?['hydration']?['current'] ?? 0.0).toDouble();
+        });
+      }
+    } catch (e) {
+      debugPrint('Error refreshing hydration data: $e');
+      // Don't show error to user as this is a background refresh
+    }
+  }
+
+  void _addWater(double amount) async {
+    final previousIntake = _currentIntake;
+    
+    // Update UI immediately for better user experience
     setState(() {
       _currentIntake += amount;
       if (_currentIntake > _dailyGoal * 1.2) { // Allow 20% over goal
@@ -58,19 +80,67 @@ class _HydrationTrackerScreenState extends State<HydrationTrackerScreen> {
       }
     });
     
-    // Save progress to Firebase
-    UserProfileService.saveUserProgress(
-      type: 'hydration',
-      data: {
-        'current': _currentIntake,
-        'goal': _dailyGoal,
-        'lastUpdated': DateTime.now().toIso8601String(),
-      },
-    );
-    
-    // Show congratulations if goal is reached for the first time
-    if (_currentIntake >= _dailyGoal && (_currentIntake - amount) < _dailyGoal) {
-      _showGoalReached();
+    try {
+      // Save progress to Firebase
+      final success = await UserProfileService.saveUserProgress(
+        type: 'hydration',
+        data: {
+          'current': _currentIntake,
+          'goal': _dailyGoal,
+          'lastUpdated': DateTime.now().toIso8601String(),
+        },
+      );
+      
+      if (success) {
+        // Show success feedback
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Added ${amount.toStringAsFixed(1)}L water! 💧'),
+              backgroundColor: const Color(0xFF42A5F5),
+              duration: const Duration(seconds: 1),
+            ),
+          );
+        }
+        
+        // Show congratulations if goal is reached for the first time
+        if (_currentIntake >= _dailyGoal && previousIntake < _dailyGoal) {
+          _showGoalReached();
+        }
+        
+        // Refresh data to ensure consistency (in case of concurrent updates)
+        await _refreshData();
+      } else {
+        // Revert the UI change if save failed
+        if (mounted) {
+          setState(() {
+            _currentIntake = previousIntake;
+          });
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to save water intake. Please try again.'),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Revert the UI change if an error occurred
+      if (mounted) {
+        setState(() {
+          _currentIntake = previousIntake;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error saving water intake: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
