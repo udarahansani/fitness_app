@@ -360,8 +360,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isCompleted ? Colors.green[300] : Colors.grey[300],
-                  foregroundColor: Colors.black,
+                  backgroundColor: isCompleted ? Colors.green : const Color(0xFF42A5F5),
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24),
                   ),
@@ -590,8 +590,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         });
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[300],
-                        foregroundColor: Colors.black,
+                        backgroundColor: const Color(0xFF42A5F5),
+                        foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
@@ -669,85 +669,104 @@ class _HomeScreenState extends State<HomeScreen> {
         final sleepQuality = sleepData?['quality'] ?? 0;
         final sleepHours = sleepDuration / 60.0;
         
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const SleepAnalyticsScreen(),
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE3F2FD),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Sleep Analytics',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
-            ).then((_) {
-              // Refresh the home screen when returning from sleep analytics
-              _loadUserData();
-            });
-          },
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE1BEE7),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Sleep Analytics',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          sleepDuration > 0 
+                              ? 'Last night: ${SleepService.formatDuration(sleepDuration)}'
+                              : 'Track your sleep',
+                          style: const TextStyle(fontSize: 14, color: Colors.black87),
+                        ),
+                        Text(
+                          sleepDuration > 0 ? 'Sleep quality score' : 'for better insights',
+                          style: const TextStyle(fontSize: 14, color: Colors.black87),
+                        ),
+                        if (sleepDuration > 0)
                           Text(
-                            sleepDuration > 0 
-                                ? 'Last night: ${SleepService.formatDuration(sleepDuration)}'
-                                : 'Track your sleep',
-                            style: const TextStyle(fontSize: 14, color: Colors.white),
+                            SleepService.getSleepQualityText(sleepQuality),
+                            style: const TextStyle(fontSize: 14, color: Colors.black87),
                           ),
-                          Text(
-                            sleepDuration > 0 ? 'Sleep quality score' : 'for better insights',
-                            style: const TextStyle(fontSize: 14, color: Colors.white),
-                          ),
-                          if (sleepDuration > 0)
-                            Text(
-                              SleepService.getSleepQualityText(sleepQuality),
-                              style: const TextStyle(fontSize: 14, color: Colors.white),
-                            ),
-                        ],
-                      ),
+                      ],
                     ),
-                    SizedBox(
-                      width: 80,
-                      height: 80,
-                      child: Stack(
-                        children: [
-                          CircularProgressIndicator(
-                            value: sleepQuality / 100,
-                            strokeWidth: 8,
-                            backgroundColor: Colors.white.withValues(alpha: 0.3),
-                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                          Center(
-                            child: Text(
-                              '$sleepQuality%',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
+                  ),
+                  SizedBox(
+                    width: 80,
+                    height: 80,
+                    child: Stack(
+                      children: [
+                        CircularProgressIndicator(
+                          value: sleepQuality / 100,
+                          strokeWidth: 8,
+                          backgroundColor: Colors.grey[300],
+                          valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF42A5F5)),
+                        ),
+                        Center(
+                          child: Text(
+                            '$sleepQuality%',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF42A5F5),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SleepAnalyticsScreen(),
+                        ),
+                      ).then((_) {
+                        // Refresh the home screen when returning from sleep analytics
+                        _loadUserData();
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF42A5F5),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Sleep Analytics',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    ),
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
