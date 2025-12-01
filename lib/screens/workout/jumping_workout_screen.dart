@@ -229,7 +229,7 @@ class _JumpingWorkoutScreenState extends State<JumpingWorkoutScreen>
                                   children: [
                                     // Head
                                     CircleAvatar(
-                                      radius: 10,
+                                      radius: 11,
                                       backgroundColor: Color(0xFFD7B084),
                                     ),
                                     SizedBox(height: 2),
@@ -279,7 +279,7 @@ class _JumpingWorkoutScreenState extends State<JumpingWorkoutScreen>
                               Icon(
                                 Icons.keyboard_arrow_up,
                                 color: Colors.green[400],
-                                size: 20,
+                                size: 21,
                               ),
                               const SizedBox(width: 30),
                               Icon(
