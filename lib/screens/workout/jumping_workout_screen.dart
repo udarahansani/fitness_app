@@ -285,7 +285,7 @@ class _JumpingWorkoutScreenState extends State<JumpingWorkoutScreen>
                               Icon(
                                 Icons.keyboard_arrow_up,
                                 color: Colors.green[400],
-                                size: 20,
+                                size: 21,
                               ),
                             ],
                           ),
