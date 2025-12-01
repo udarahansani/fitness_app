@@ -86,7 +86,7 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                 Text(
                   'Goal: ${_userProfile?.fitnessGoal?.replaceAll('_', ' ').toUpperCase() ?? 'FITNESS'} - ${_userProfile?.activityLevel?.toUpperCase() ?? 'MEDIUM'}',
                   style: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
@@ -235,7 +235,7 @@ class _WorkoutPlanScreenState extends State<WorkoutPlanScreen> {
                       child: const Text(
                         'Start Session',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 20,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
